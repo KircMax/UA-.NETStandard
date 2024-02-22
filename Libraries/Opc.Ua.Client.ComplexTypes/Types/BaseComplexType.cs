@@ -68,6 +68,27 @@ namespace Opc.Ua.Client.ComplexTypes
             TypeId = typeId;
         }
 
+        /// <summary>
+        /// Initializes an object just like the <paramref name="template"/>.
+        /// </summary>
+        /// <param name="template">template to be cloned.</param>
+        public BaseComplexType(BaseComplexType template)
+        {
+            if (template != null)
+            {
+                TypeId = template.TypeId;
+                BinaryEncodingId = template.BinaryEncodingId;
+                XmlEncodingId = template.XmlEncodingId;
+                m_context = template.m_context;
+                InitializePropertyAttributes();
+                // clone all properties of derived class
+                foreach (var property in template.GetPropertyEnumerator())
+                {
+                    property.SetValue(this, Utils.Clone(property.GetValue(this)));
+                }
+            }
+        }
+
         [OnSerializing()]
         private void UpdateContext(StreamingContext context)
         {

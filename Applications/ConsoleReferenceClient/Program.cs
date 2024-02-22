@@ -66,19 +66,20 @@ namespace Quickstarts.ConsoleReferenceClient
 
             // command line options
             bool showHelp = false;
-            bool autoAccept = false;
+            bool autoAccept = true;
             string username = null;
             string userpassword = null;
             bool logConsole = false;
             bool appLog = false;
             bool renewCertificate = false;
-            bool loadTypes = false;
+            bool loadTypes = true;
             bool browseall = false;
             bool fetchall = false;
-            bool jsonvalues = false;
+            bool jsonvalues = true;
             bool verbose = false;
-            bool subscribe = false;
-            bool noSecurity = false;
+            bool subscribe = true;
+            bool noSecurity = true;
+            bool reactivateSession = false;
             string password = null;
             int timeout = Timeout.Infinite;
             string logFile = null;
@@ -105,7 +106,8 @@ namespace Quickstarts.ConsoleReferenceClient
                 { "s|subscribe", "Subscribe", s => { if (s != null) subscribe = true; } },
                 { "rc|reverseconnect=", "Connect using the reverse connect endpoint. (e.g. rc=opc.tcp://localhost:65300)", (string url) => reverseConnectUrlString = url},
             };
-
+            username = "myUser";
+            userpassword = "Password123#";
             ReverseConnectManager reverseConnectManager = null;
 
             try
@@ -114,7 +116,7 @@ namespace Quickstarts.ConsoleReferenceClient
                 var extraArg = ConsoleUtils.ProcessCommandLine(output, args, options, ref showHelp, "REFCLIENT", false);
 
                 // connect Url?
-                Uri serverUrl = new Uri("opc.tcp://localhost:62541/Quickstarts/ReferenceServer");
+                Uri serverUrl = new Uri("opc.tcp://192.168.2.3:4840");
                 if (!string.IsNullOrEmpty(extraArg))
                 {
                     serverUrl = new Uri(extraArg);
@@ -203,12 +205,17 @@ namespace Quickstarts.ConsoleReferenceClient
                         // set user identity
                         if (!String.IsNullOrEmpty(username))
                         {
+                            uaClient.UserIdentity = new UserIdentity(username, userpassword ?? string.Empty) { PolicyId = "UserName_Aes256Sha256RsaPss_Token" };
                             uaClient.UserIdentity = new UserIdentity(username, userpassword ?? string.Empty);
                         }
 
                         bool connected = await uaClient.ConnectAsync(serverUrl.ToString(), !noSecurity, quitCTS.Token).ConfigureAwait(false);
                         if (connected)
                         {
+                            if (reactivateSession)
+                            {
+                                uaClient.Session.Reconnect();
+                            }
                             output.WriteLine("Connected! Ctrl-C to quit.");
 
                             // enable subscription transfer
@@ -244,16 +251,47 @@ namespace Quickstarts.ConsoleReferenceClient
                                         .Select(r => ExpandedNodeId.ToNodeId(r.NodeId, uaClient.Session.NamespaceUris)));
                                 }
 
+                                var nId = new NodeId("\"Asm_Structure_Typesafe\".\"SimpleStructMultiDimArray\"", 3);
+                                variableIds = new NodeIdCollection() { nId, nId };
                                 if (jsonvalues && variableIds != null)
                                 {
+                                    //uaClient.Session.NodeCache.
                                     var (allValues, results) = await samples.ReadAllValuesAsync(uaClient, variableIds).ConfigureAwait(false);
+                                    if (allValues[0].Equals(allValues[1]))
+                                    {
+                                        output.WriteLine($"Equals!");
+                                    }
+                                    else
+                                    {
+                                        output.WriteLine($"Does not equal!");
+                                    }
+                                    if (allValues[0].Value.Equals(allValues[1].Value))
+                                    {
+                                        output.WriteLine($"Equals!");
+                                    }
+                                    else
+                                    {
+                                        output.WriteLine($"Does not equal!");
+                                    }
                                 }
 
-                                if (subscribe && (browseall || fetchall))
+                                if (subscribe /*&& (browseall || fetchall)*/)
                                 {
                                     // subscribe to 100 random variables
+                                    //uaClient.Session.brows
+                                    var node = uaClient.Session.NodeCache.FetchNode(nId);
                                     const int MaxVariables = 100;
-                                    NodeCollection variables = new NodeCollection();
+
+                                    NodeCollection variables = new NodeCollection() {
+                                        node,
+                                        /*node*/
+
+                                        //new Node() { NodeId = nId, BrowseName = "4, \"mySTRUCTWithMultiArrays\"",
+                                            //NodeClass = NodeClass.Variable,
+                                            //TypeDefinitionId = new ExpandedNodeId("DT_\"Asm_Structure_Typesafe\".\"mySTRUCTWithMultiArrays\"", nId.NamespaceIndex), },
+                                        //}
+                                    };
+                                    /*
                                     Random random = new Random(62541);
                                     if (fetchall)
                                     {
@@ -272,11 +310,11 @@ namespace Quickstarts.ConsoleReferenceClient
                                             .Take(MaxVariables)
                                             .ToList();
                                         variables.AddRange(uaClient.Session.NodeCache.Find(variableReferences).Cast<Node>());
-                                    }
+                                    }*/
 
                                     await samples.SubscribeAllValuesAsync(uaClient,
                                         variableIds: new NodeCollection(variables),
-                                        samplingInterval: 1000,
+                                        samplingInterval: 0,
                                         publishingInterval: 5000,
                                         queueSize: 10,
                                         lifetimeCount: 12,
@@ -321,10 +359,10 @@ namespace Quickstarts.ConsoleReferenceClient
 
                 output.WriteLine("Client stopped.");
             }
-            catch (Exception ex)
-            {
-                output.WriteLine(ex.Message);
-            }
+            //catch (Exception ex)
+            //{
+            //    output.WriteLine(ex.Message);
+            //}
             finally
             {
                 Utils.SilentDispose(reverseConnectManager);

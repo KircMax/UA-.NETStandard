@@ -175,6 +175,16 @@ namespace Opc.Ua.Core.Tests.Types.BuiltIn
             // Variant variant6 = new Variant(daysdays);
         }
 
+        [Test]
+        public void VariantFromCharArray()
+        {
+
+            var byteArr = new char[] { 'a' };
+            var myString = new string(byteArr);
+            //var myString = System.Text.Encoding.Default.GetString(byteArr);
+            var variant = new Variant(myString);
+        }
+
         /// <summary>
         /// Validate ExtensionObject special cases and constructors.
         /// </summary>

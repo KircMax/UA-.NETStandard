@@ -881,7 +881,7 @@ namespace Quickstarts
                     KeepAliveCount = keepAliveCount,
                     SequentialPublishing = true,
                     RepublishAfterTransfer = true,
-                    DisableMonitoredItemCache = true,
+                    DisableMonitoredItemCache = false,
                     MaxNotificationsPerPublish = 1000,
                     MinLifetimeInterval = (uint)session.SessionTimeout,
                     FastDataChangeCallback = FastDataChangeNotification,
@@ -906,11 +906,28 @@ namespace Quickstarts
                         MonitoringMode = MonitoringMode.Reporting,
                     };
                     subscription.AddItem(monitoredItem);
+                    monitoredItem.Notification += ((MonitoredItem monItem, MonitoredItemNotificationEventArgs e) => {
+                        var dataChangeNotification = e.NotificationValue as MonitoredItemNotification;
+                        m_output.WriteLine($"MonItem {monItem.Handle}_{monitoredItem.ClientHandle} notification value:{dataChangeNotification.Value}");
+                        m_output.WriteLine($"MonItem Sampling: {monItem.SamplingInterval} status sampling: {monItem.Status.SamplingInterval}");
+                    });
                     if (subscription.CurrentKeepAliveCount > 1000) break;
                 }
 
                 // Create the monitored items on Server side
                 await subscription.ApplyChangesAsync().ConfigureAwait(false);
+                foreach (Node item in variableIds)
+                {
+                    var monitoredItem = subscription.MonitoredItems.FirstOrDefault(el => item.Handle == el.Handle);
+                    if (monitoredItem != null)
+                    {
+                        monitoredItem.Notification += ((MonitoredItem monItem, MonitoredItemNotificationEventArgs e) => {
+                            var dataChangeNotification = e.NotificationValue as MonitoredItemNotification;
+                            m_output.WriteLine($"MonItem {monItem.Handle}_{monitoredItem.ClientHandle} notification value:{dataChangeNotification.Value}");
+                            m_output.WriteLine($"MonItem Sampling: {monItem.SamplingInterval} status sampling: {monItem.Status.SamplingInterval}");
+                        });
+                    }
+                }
                 m_output.WriteLine("MonitoredItems {0} created for SubscriptionId = {1}.", subscription.MonitoredItemCount, subscription.Id);
             }
             catch (Exception ex)
@@ -994,12 +1011,20 @@ namespace Quickstarts
                 m_output.WriteLine("Notification: Id={0} PublishTime={1} SequenceNumber={2} Items={3}.",
                     subscription.Id, notification.PublishTime,
                     notification.SequenceNumber, notification.MonitoredItems.Count);
+                foreach (var item in notification.MonitoredItems)
+                {
+                    m_output.WriteLine($"Notification: Id={subscription.Id} PublishTime={notification.PublishTime} " +
+                        $"SequenceNumber={notification.SequenceNumber} ClientHandle: {item.ClientHandle}, Val: {item.Value}");
+                    //(subscription.MonitoredItems.First(el => el.ClientHandle ==  item.ClientHandle)).Noti
+                }
             }
             catch (Exception ex)
             {
                 m_output.WriteLine("FastDataChangeNotification error: {0}", ex.Message);
             }
         }
+
+
 
         /// <summary>
         /// Handle DataChange notifications from Server

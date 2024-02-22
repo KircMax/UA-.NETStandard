@@ -13,7 +13,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Globalization;
 using System.Reflection;
 using System.Runtime.Serialization;
@@ -96,6 +95,8 @@ namespace Opc.Ua
 
 #endif
         }
+
+
 
         /// <summary>
         /// Initializes the object with an object value.

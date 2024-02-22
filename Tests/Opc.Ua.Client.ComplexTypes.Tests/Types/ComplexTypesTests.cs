@@ -96,6 +96,28 @@ namespace Opc.Ua.Client.ComplexTypes.Tests.Types
         }
 
         /// <summary>
+        /// Create a structure type from a DataTypeDefinition.
+        /// Activate an object and verify it is the expected type
+        /// with expected properties.
+        /// </summary>
+        [Theory]
+        public void CreateComplexTypeFromTemplate(StructureType structureType)
+        {
+            // EncoderCommon.BuiltInTypes subtracted by the number of unused types.
+            int propertyBuiltInTypes = EncoderCommon.BuiltInTypes.Length - 3;
+            var complexType = BuildComplexTypeWithAllBuiltInTypes(
+                structureType, nameof(CreateComplexType));
+            Assert.NotNull(complexType);
+            var emittedType = Activator.CreateInstance(complexType);
+            var structType = emittedType as BaseComplexType;
+            var clone = new BaseComplexType(structType);
+            Assert.NotNull(clone);
+            Assert.AreEqual(clone.GetPropertyTypes().Count, propertyBuiltInTypes);
+            Assert.AreEqual(clone.GetPropertyCount(), propertyBuiltInTypes);
+            Assert.AreEqual(structType, clone);
+        }
+
+        /// <summary>
         /// Create a complex type with one data field set with default or random value.
         /// </summary>
         [Theory]
