@@ -840,7 +840,245 @@ namespace Quickstarts
         }
         #endregion
 
+
         #region Subscribe Values
+        /// <summary>
+        /// A select clause event filter
+        /// </summary>
+        public class SelectClauseEventFilter
+        {
+            /// <summary>
+            /// Browsepath
+            /// </summary>
+            public string BrowsePath { get; }
+
+            /// <summary>
+            /// Namespace index
+            /// </summary>
+            public ushort NamespaceIndex { get; }
+
+            /// <summary>
+            /// 
+            /// </summary>
+            /// <param name="browsePath">Browse path for this event field, in namespace index 0</param>
+            public SelectClauseEventFilter(string browsePath) : this(browsePath, 0)
+            {
+
+            }
+
+            /// <summary>
+            /// Browse path for this event field
+            /// </summary>
+            /// <param name="browsePath">Browse path for this event field</param>
+            /// <param name="namespaceIndex">Namespace index of the field</param>
+            public SelectClauseEventFilter(string browsePath, ushort namespaceIndex)
+            {
+                if (browsePath == null)
+                {
+                    throw new ArgumentNullException(browsePath);
+                }
+                BrowsePath = browsePath;
+                NamespaceIndex = namespaceIndex;
+            }
+        }
+        /// <summary>
+        /// Select clause collection for event filter
+        /// </summary>
+        public class SelectClauseEventFilterCollection : IEnumerable<SelectClauseEventFilter>
+        {
+            private List<SelectClauseEventFilter> m_selectEventFilters;
+
+            /// <summary>
+            /// Returns the enumerator for this collection
+            /// </summary>
+            public IEnumerator<SelectClauseEventFilter> GetEnumerator()
+            {
+                return m_selectEventFilters.GetEnumerator();
+            }
+
+            IEnumerator IEnumerable.GetEnumerator()
+            {
+                return GetEnumerator();
+            }
+
+            /// <summary>
+            /// 
+            /// </summary>
+            public SelectClauseEventFilterCollection()
+            {
+                m_selectEventFilters = new List<SelectClauseEventFilter>();
+            }
+
+            /// <summary>
+            /// 
+            /// </summary>
+            /// <param name="selectClauseEventFilters"></param>
+            public SelectClauseEventFilterCollection(IEnumerable<SelectClauseEventFilter> selectClauseEventFilters)
+            {
+                m_selectEventFilters = new List<SelectClauseEventFilter>();
+
+                foreach (var selectClauseEventFilter in selectClauseEventFilters)
+                {
+                    Add(selectClauseEventFilter);
+                }
+            }
+
+            /// <summary>
+            /// Add a select clause filter, in namespace index 0
+            /// </summary>
+            /// <param name="browsePath">Browse path to the event field (eg. Severity), in namespace index 0</param>
+            public void Add(string browsePath)
+            {
+                Add(new SelectClauseEventFilter(browsePath));
+            }
+
+            /// <summary>
+            /// Add a select clause filter
+            /// </summary>
+            /// <param name="browsePath">Browse path to the event field (eg. Severity)</param>
+            /// <param name="namespaceIndex">Namespace index of the event field</param>
+            public void Add(string browsePath, ushort namespaceIndex)
+            {
+                Add(new SelectClauseEventFilter(browsePath, namespaceIndex));
+            }
+
+            /// <summary>
+            /// Add select clause filters, in namespace index 0
+            /// </summary>
+            /// <param name="browsePaths">Browse path list to the event fields (eg. Severity, Time, etc.), in namespace index 0</param>
+            public void Add(IEnumerable<string> browsePaths)
+            {
+                Add(browsePaths, 0);
+            }
+
+            /// <summary>
+            /// Add select clause filters
+            /// </summary>
+            /// <param name="browsePaths">Browse path list to the event fields (eg. Severity, Time, etc.)</param>
+            /// <param name="namespaceIndex">Namespace index of the event fields</param>
+            public void Add(IEnumerable<string> browsePaths, ushort namespaceIndex)
+            {
+                foreach (var browsePath in browsePaths)
+                {
+                    Add(browsePath, namespaceIndex);
+                }
+            }
+
+            private void Add(SelectClauseEventFilter selectClauseEventFilter)
+            {
+                if (m_selectEventFilters.Exists(x => x.BrowsePath == selectClauseEventFilter.BrowsePath && x.NamespaceIndex == selectClauseEventFilter.NamespaceIndex))
+                {
+                    return;
+                }
+                m_selectEventFilters.Add(selectClauseEventFilter);
+            }
+
+            /// <summary>
+            /// String representation
+            /// </summary>
+            /// <returns></returns>
+            public override string ToString()
+            {
+                return string.Join(",", m_selectEventFilters.Select(x => x.ToString()));
+            }
+
+        }
+
+        /// <summary>
+        /// Interface for where clause settings
+        /// </summary>
+        public interface IWhereClause
+        {
+            /// <summary>
+            /// Direct setup of the where clause
+            /// </summary>
+            void Set(ContentFilter whereClause);
+
+            /// <summary>
+            /// Get the where clause
+            /// </summary>
+            ContentFilter Get();
+        }
+        internal class WhereClause : IWhereClause
+        {
+            private ContentFilter _whereClause;
+
+            public WhereClause()
+            {
+                _whereClause = new ContentFilter();
+            }
+
+            public ContentFilter Get()
+                => _whereClause;
+
+            public void Set(ContentFilter whereClause)
+                => _whereClause = whereClause ?? throw new ArgumentNullException(nameof(whereClause));
+        }
+        /// <summary>
+        /// Event filter settings
+        /// </summary>
+        public class EventFilterSettings
+        {
+            /// <summary>
+            /// Select clauses
+            /// </summary>
+            public SelectClauseEventFilterCollection SelectClauses { get; }
+
+            /// <summary>
+            /// Where clause
+            /// </summary>
+            public IWhereClause WhereClause { get; }
+
+            /// <summary>
+            /// 
+            /// </summary>
+            public EventFilterSettings()
+                : this(new SelectClauseEventFilterCollection())
+            {
+            }
+
+            /// <summary>
+            /// 
+            /// </summary>
+            /// <param name="selectClauses"></param>
+            public EventFilterSettings(SelectClauseEventFilterCollection selectClauses)
+            {
+                SelectClauses = selectClauses ?? throw new ArgumentNullException(nameof(selectClauses));
+                WhereClause = new WhereClause();
+            }
+
+            /// <summary>
+            /// String representation
+            /// </summary>
+            /// <returns></returns>
+            public override string ToString()
+            {
+                return $"Select clause: {SelectClauses}";
+            }
+        }
+
+        private static SimpleAttributeOperandCollection GetSimpleAttributeOperandCollectionForSelectClause(SelectClauseEventFilterCollection selectClauseEventFilterCollection)
+        {
+            var SimpleAttributeOperandCollection = new SimpleAttributeOperandCollection();
+            foreach (var selectClause in selectClauseEventFilterCollection)
+            {
+                SimpleAttributeOperand simpleAttributeOperand;
+                var pathElements = selectClause.BrowsePath.Split('/');
+                if (pathElements.Count() == 1)
+                {
+                    var qualifiedName = new QualifiedName(pathElements.First(), selectClause.NamespaceIndex);
+                    simpleAttributeOperand = new SimpleAttributeOperand(ObjectTypeIds.BaseEventType, qualifiedName);
+                }
+                else
+                {
+                    var qualifiedNames = pathElements.Select(x => new QualifiedName(x, selectClause.NamespaceIndex)).ToList();
+                    simpleAttributeOperand = new SimpleAttributeOperand(ObjectTypeIds.BaseEventType, qualifiedNames);
+                }
+                SimpleAttributeOperandCollection.Add(simpleAttributeOperand);
+            }
+            return SimpleAttributeOperandCollection;
+        }
+
         /// <summary>
         /// Subscribe to all variables in the list.
         /// </summary>
@@ -881,7 +1119,7 @@ namespace Quickstarts
                     KeepAliveCount = keepAliveCount,
                     SequentialPublishing = true,
                     RepublishAfterTransfer = true,
-                    DisableMonitoredItemCache = true,
+                    DisableMonitoredItemCache = false,
                     MaxNotificationsPerPublish = 1000,
                     MinLifetimeInterval = (uint)session.SessionTimeout,
                     FastDataChangeCallback = FastDataChangeNotification,
@@ -908,7 +1146,38 @@ namespace Quickstarts
                     subscription.AddItem(monitoredItem);
                     if (subscription.CurrentKeepAliveCount > 1000) break;
                 }
+                EventFilterSettings eventFilterWithSuccess = new EventFilterSettings();
+                ContentFilter contentFilterWithSuccess = new ContentFilter();
+                var niSimaticAlarmConditionType = new NodeId(1805, 3);
+                var contentFilterElementWithSuccess = new ContentFilterElement {
+                    FilterOperator = FilterOperator.And,
+                    FilterOperands = new ExtensionObjectCollection
+                            {
+                                new ExtensionObject(new SimpleAttributeOperand(niSimaticAlarmConditionType , "Retain")),
+                                new ExtensionObject(new LiteralOperand(true)),
+                            }
+                };
+                contentFilterWithSuccess.Elements.Add(contentFilterElementWithSuccess);
+                eventFilterWithSuccess.WhereClause.Set(contentFilterWithSuccess);
 
+                var filter = new EventFilter {
+                    SelectClauses = GetSimpleAttributeOperandCollectionForSelectClause(eventFilterWithSuccess.SelectClauses),
+                    WhereClause = eventFilterWithSuccess.WhereClause.Get()
+                };
+                filter.AddSelectClause(ObjectTypeIds.BaseEventType, new QualifiedName("EventId"));
+                filter.AddSelectClause(ObjectTypes.ConditionType, null, Attributes.NodeId);
+
+
+                var eventMonItem = new MonitoredItem(subscription.DefaultItem) {
+                    StartNodeId = ObjectIds.Server,
+                    MonitoringMode = MonitoringMode.Reporting,
+                    AttributeId = Attributes.EventNotifier,
+                    QueueSize = 1,
+                    DiscardOldest = true,
+                    Filter = filter,
+                };
+
+                subscription.AddItem(eventMonItem);
                 // Create the monitored items on Server side
                 await subscription.ApplyChangesAsync().ConfigureAwait(false);
                 m_output.WriteLine("MonitoredItems {0} created for SubscriptionId = {1}.", subscription.MonitoredItemCount, subscription.Id);

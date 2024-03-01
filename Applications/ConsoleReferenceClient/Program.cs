@@ -66,7 +66,7 @@ namespace Quickstarts.ConsoleReferenceClient
 
             // command line options
             bool showHelp = false;
-            bool autoAccept = false;
+            bool autoAccept = true;
             string username = null;
             string userpassword = null;
             bool logConsole = false;
@@ -77,8 +77,8 @@ namespace Quickstarts.ConsoleReferenceClient
             bool fetchall = false;
             bool jsonvalues = false;
             bool verbose = false;
-            bool subscribe = false;
-            bool noSecurity = false;
+            bool subscribe = true;
+            bool noSecurity = true;
             string password = null;
             int timeout = Timeout.Infinite;
             string logFile = null;
@@ -114,7 +114,7 @@ namespace Quickstarts.ConsoleReferenceClient
                 var extraArg = ConsoleUtils.ProcessCommandLine(output, args, options, ref showHelp, "REFCLIENT", false);
 
                 // connect Url?
-                Uri serverUrl = new Uri("opc.tcp://localhost:62541/Quickstarts/ReferenceServer");
+                Uri serverUrl = new Uri("opc.tcp://192.168.2.3:4840");
                 if (!string.IsNullOrEmpty(extraArg))
                 {
                     serverUrl = new Uri(extraArg);
@@ -222,7 +222,7 @@ namespace Quickstarts.ConsoleReferenceClient
                                 await samples.LoadTypeSystemAsync(uaClient.Session).ConfigureAwait(false);
                             }
 
-                            if (browseall || fetchall || jsonvalues)
+                            if (browseall || fetchall || jsonvalues || subscribe)
                             {
                                 NodeIdCollection variableIds = null;
                                 ReferenceDescriptionCollection referenceDescriptions = null;
@@ -249,12 +249,13 @@ namespace Quickstarts.ConsoleReferenceClient
                                     var (allValues, results) = await samples.ReadAllValuesAsync(uaClient, variableIds).ConfigureAwait(false);
                                 }
 
-                                if (subscribe && (browseall || fetchall))
+                                if (subscribe /*&& (browseall || fetchall)*/)
                                 {
                                     // subscribe to 100 random variables
                                     const int MaxVariables = 100;
                                     NodeCollection variables = new NodeCollection();
                                     Random random = new Random(62541);
+                                    /*
                                     if (fetchall)
                                     {
                                         variables.AddRange(allNodes
@@ -272,7 +273,7 @@ namespace Quickstarts.ConsoleReferenceClient
                                             .Take(MaxVariables)
                                             .ToList();
                                         variables.AddRange(uaClient.Session.NodeCache.Find(variableReferences).Cast<Node>());
-                                    }
+                                    }*/
 
                                     await samples.SubscribeAllValuesAsync(uaClient,
                                         variableIds: new NodeCollection(variables),
