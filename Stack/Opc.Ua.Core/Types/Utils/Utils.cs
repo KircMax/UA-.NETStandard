@@ -13,22 +13,21 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Text;
-using System.Xml;
+using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Globalization;
-using System.Security.Cryptography.X509Certificates;
-using System.Reflection;
-using System.Runtime.Serialization;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
-using System.Diagnostics;
-using System.Security.Cryptography;
 using System.Net;
-using System.Collections.ObjectModel;
-using Opc.Ua.Security.Certificates;
+using System.Reflection;
 using System.Runtime.InteropServices;
-
+using System.Runtime.Serialization;
+using System.Security.Cryptography;
+using System.Security.Cryptography.X509Certificates;
+using System.Text;
+using System.Threading.Tasks;
+using System.Xml;
+using Opc.Ua.Security.Certificates;
 using NewNonceImplementation = Opc.Ua.Nonce;
 
 namespace Opc.Ua
@@ -1270,7 +1269,7 @@ namespace Opc.Ua
             if (!string.IsNullOrWhiteSpace(uri))
             {
                 // back compat: for not well formed Uri, fall back to legacy formatting behavior - see #2793
-                if (!Uri.IsWellFormedUriString(uri, UriKind.Absolute) ||
+                if (true || !Uri.IsWellFormedUriString(uri, UriKind.Absolute) ||
                     !Uri.TryCreate(uri.Replace(";", "%3b"), UriKind.Absolute, out Uri validUri))
                 {
                     var buffer = new StringBuilder();
@@ -2606,7 +2605,7 @@ namespace Opc.Ua
                 extensions.Add(document.DocumentElement);
             }
         }
-#endregion
+        #endregion
 
         #region Reflection Helper Functions
         /// <summary>
@@ -2960,7 +2959,7 @@ namespace Opc.Ua
             [Obsolete("Use equivalent method from the Opc.Ua.Nonce class")]
             public static bool ValidateNonce(byte[] nonce, MessageSecurityMode securityMode, uint minNonceLength)
             {
-                return NewNonceImplementation.ValidateNonce(nonce,securityMode, minNonceLength);
+                return NewNonceImplementation.ValidateNonce(nonce, securityMode, minNonceLength);
             }
         }
 
@@ -3199,6 +3198,6 @@ namespace Opc.Ua
         {
             return s_isRunningOnMonoValue.Value;
         }
-#endregion
+        #endregion
     }
 }
