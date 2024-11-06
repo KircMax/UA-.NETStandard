@@ -83,56 +83,68 @@ namespace Quickstarts
                 return;
             }
 
-            try
-            {
-                #region Read a node by calling the Read Service
+            #region Read a node by calling the Read Service
 
-                // build a list of nodes to be read
-                ReadValueIdCollection nodesToRead = new ReadValueIdCollection()
-                {
+            // build a list of nodes to be read
+            ReadValueIdCollection nodesToRead = new ReadValueIdCollection()
+            {
                     // Value of ServerStatus
                     new ReadValueId() { NodeId = Variables.Server_ServerStatus, AttributeId = Attributes.Value },
                     // BrowseName of ServerStatus_StartTime
                     new ReadValueId() { NodeId = Variables.Server_ServerStatus_StartTime, AttributeId = Attributes.BrowseName },
                     // Value of ServerStatus_StartTime
-                    new ReadValueId() { NodeId = Variables.Server_ServerStatus_StartTime, AttributeId = Attributes.Value }
+                    new ReadValueId() { NodeId = Variables.Server_ServerStatus_StartTime, AttributeId = Attributes.Value },
+                    new ReadValueId() { NodeId = new NodeId("\"42. IEC_Counter data type\".\"Struct\"", 3), AttributeId = Attributes.Value },
+                    new ReadValueId() { NodeId = new NodeId("\"ASM_DynamicArray\".\"DataAccess\".\"42. IEC_Counter data type\".\"Struct\"", 10), AttributeId = Attributes.Value }
                 };
 
-                // Read the node attributes
-                m_output.WriteLine("Reading nodes...");
+            // Read the node attributes
+            m_output.WriteLine("Reading nodes...");
 
-                // Call Read Service
-                session.Read(
-                    null,
-                    0,
-                    TimestampsToReturn.Both,
-                    nodesToRead,
-                    out DataValueCollection resultsValues,
-                    out DiagnosticInfoCollection diagnosticInfos);
+            // Call Read Service
+            session.Read(
+                null,
+                0,
+                TimestampsToReturn.Both,
+                nodesToRead,
+                out DataValueCollection resultsValues,
+                out DiagnosticInfoCollection diagnosticInfos);
 
-                // Validate the results
-                m_validateResponse(resultsValues, nodesToRead);
+            // Validate the results
+            m_validateResponse(resultsValues, nodesToRead);
 
-                // Display the results.
-                foreach (DataValue result in resultsValues)
-                {
-                    m_output.WriteLine("Read Value = {0} , StatusCode = {1}", result.Value, result.StatusCode);
-                }
-                #endregion
-
-                #region Read the Value attribute of a node by calling the Session.ReadValue method
-                // Read Server NamespaceArray
-                m_output.WriteLine("Reading Value of NamespaceArray node...");
-                DataValue namespaceArray = session.ReadValue(Variables.Server_NamespaceArray);
-                // Display the result
-                m_output.WriteLine($"NamespaceArray Value = {namespaceArray}");
-                #endregion
-            }
-            catch (Exception ex)
+            // Display the results.
+            foreach (DataValue result in resultsValues)
             {
-                // Log Error
-                m_output.WriteLine($"Read Nodes Error : {ex.Message}.");
+                m_output.WriteLine("Read Value = {0} , StatusCode = {1}", result.Value, result.StatusCode);
             }
+            #endregion
+
+            #region Read the Value attribute of a node by calling the Session.ReadValue method
+            // Read Server NamespaceArray
+            m_output.WriteLine("Reading Value of NamespaceArray node...");
+            DataValue namespaceArray = session.ReadValue(Variables.Server_NamespaceArray);
+            // Display the result
+            m_output.WriteLine($"NamespaceArray Value = {namespaceArray}");
+            #endregion
+
+            #region write
+            var resultValueForWrite = resultsValues.Last().Value;
+            var writeColl = new WriteValueCollection() {
+                    new WriteValue() {
+                        AttributeId = Attributes.Value,
+                        Value = new DataValue() {
+                            Value = resultValueForWrite,
+                        },
+                        NodeId = nodesToRead.Last().NodeId,
+                    }
+                };
+            var firstRes = (resultValueForWrite as ExtensionObject[]).First();
+            var firstResType = firstRes.TypeId;
+            var nsUri = firstResType.NamespaceUri;
+            session.Write(null, writeColl, out StatusCodeCollection writeResults, out DiagnosticInfoCollection writeDiagInfos);
+            //session.Write(null, new WriteValueCollection() { new WriteValue() { AttributeId = Attributes.Value, Value = new DataValue(new Variant(resultValueForWrite, null), } })
+            #endregion
         }
 
         /// <summary>
