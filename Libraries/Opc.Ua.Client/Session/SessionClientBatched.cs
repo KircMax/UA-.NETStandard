@@ -32,6 +32,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 
 namespace Opc.Ua
 {
@@ -68,7 +69,8 @@ namespace Opc.Ua
                 else
                 {
                     m_operationLimits = value;
-                };
+                }
+                ;
             }
         }
         #endregion
@@ -716,6 +718,7 @@ namespace Opc.Ua
             out DataValueCollection results,
             out DiagnosticInfoCollection diagnosticInfos)
         {
+            var started = DateTime.Now;
             ResponseHeader responseHeader = null;
 
             uint operationLimit = OperationLimits.MaxNodesPerRead;
@@ -723,9 +726,12 @@ namespace Opc.Ua
                 out results, out diagnosticInfos, out var stringTable,
                 nodesToRead.Count, operationLimit
                 );
+            Utils.Logger?.LogInformation($"0: {(DateTime.Now - started).Ticks}");
 
+            var batchOperation = nodesToRead.Batch<ReadValueId, ReadValueIdCollection>(operationLimit);
+            Utils.Logger?.LogInformation($"1: {(DateTime.Now - started).Ticks}");
             foreach (var batchAttributesToRead in
-                            nodesToRead.Batch<ReadValueId, ReadValueIdCollection>(operationLimit))
+                            batchOperation)
             {
                 if (requestHeader != null)
                 {
@@ -739,14 +745,12 @@ namespace Opc.Ua
                     batchAttributesToRead,
                     out DataValueCollection batchResults,
                     out DiagnosticInfoCollection batchDiagnosticInfos);
-
                 ClientBase.ValidateResponse(batchResults, batchAttributesToRead);
                 ClientBase.ValidateDiagnosticInfos(batchDiagnosticInfos, batchAttributesToRead);
-
                 AddResponses<DataValue, DataValueCollection>(
                     ref results, ref diagnosticInfos, ref stringTable, batchResults, batchDiagnosticInfos, responseHeader.StringTable);
             }
-
+            Utils.Logger?.LogInformation($"2: {(DateTime.Now - started).Ticks}");
             responseHeader.StringTable = stringTable;
             return responseHeader;
         }

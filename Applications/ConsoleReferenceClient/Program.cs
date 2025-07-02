@@ -29,6 +29,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -47,6 +48,15 @@ namespace Quickstarts.ConsoleReferenceClient
     /// </summary>
     public static class Program
     {
+        public static DirectoryInfo CurrentExeDir
+        {
+            get
+            {
+                string currentPath = System.Reflection.Assembly.GetExecutingAssembly().Location;
+                return new FileInfo(currentPath).Directory;
+            }
+        }
+
         /// <summary>
         /// Main entry point.
         /// </summary>
@@ -67,7 +77,7 @@ namespace Quickstarts.ConsoleReferenceClient
 
             // command line options
             bool showHelp = false;
-            bool autoAccept = false;
+            bool autoAccept = true;
             string username = null;
             string userpassword = null;
             string userCertificateThumbprint = null;
@@ -82,7 +92,7 @@ namespace Quickstarts.ConsoleReferenceClient
             bool jsonvalues = false;
             bool verbose = false;
             bool subscribe = false;
-            bool noSecurity = false;
+            bool noSecurity = true;
             string password = null;
             int timeout = Timeout.Infinite;
             string logFile = null;
@@ -127,7 +137,7 @@ namespace Quickstarts.ConsoleReferenceClient
                 var extraArg = ConsoleUtils.ProcessCommandLine(output, args, options, ref showHelp, "REFCLIENT", false);
 
                 // connect Url?
-                Uri serverUrl = new Uri("opc.tcp://localhost:62541/Quickstarts/ReferenceServer");
+                Uri serverUrl = new Uri("opc.tcp://192.168.2.3:4840");
                 if (!string.IsNullOrEmpty(extraArg))
                 {
                     serverUrl = new Uri(extraArg);
@@ -247,7 +257,7 @@ namespace Quickstarts.ConsoleReferenceClient
                             }
                         }
 
-                        if ( enableDurableSubscriptions )
+                        if (enableDurableSubscriptions)
                         {
                             uaClient.ReconnectPeriodExponentialBackoff = 60000;
                         }
@@ -257,6 +267,42 @@ namespace Quickstarts.ConsoleReferenceClient
                         {
                             output.WriteLine("Connected! Ctrl-C to quit.");
 
+                            /*var configuration = new NLog.Config.LoggingConfiguration();
+                            var logfile = new NLog.Targets.FileTarget("logfile") {
+                                FileName = Path.Combine(dirPath, dateTimeService.Now.ToString("yyyy_MM_dd_-_HH_mm_ss") + "_OpcUA_Wrapper.log")
+                            };
+                            configuration.AddRule(NLog.LogLevel.Trace, NLog.LogLevel.Fatal, logfile);
+                            */
+                            var logFilePath = Path.Combine(CurrentExeDir.FullName, $"ConsoleLog_{DateTime.Now.ToString("yyyyMMddhhmmssffff")}.txt");
+                            while (File.Exists(logFilePath))
+                            {
+                                logFilePath = Path.Combine(CurrentExeDir.FullName, $"ConsoleLog_{DateTime.Now.ToString("yyyyMMddhhmmssffff")}.txt");
+                            }
+                            output.WriteLine($"Logger is: {logFilePath}");
+                            Utils.SetLogger(new OpcLogger(logFilePath, LogLevel.Debug));
+                            //Utils.Logger = new OpcLogger(logFilePath, LogLevel.Debug);
+                            output.WriteLine($"{Utils.Logger}");
+                            var timesTaken = new List<TimeSpan>();
+                            for (int i = 0; i < 200; i++)
+                            {
+                                var sw = Stopwatch.StartNew();
+                                uaClient.Session.Read(null, 0, TimestampsToReturn.Both, new ReadValueIdCollection() { new ReadValueId() {
+                                            AttributeId = Attributes.Value, NodeId= new NodeId("\"ItemsTest\".\"Items\"", 3)} }, out DataValueCollection results, out DiagnosticInfoCollection diagnosticInfos);
+                                timesTaken.Add(sw.Elapsed);
+                            }
+                            var avgTicks = timesTaken.Average(el => el.Ticks);
+                            var avgTime = TimeSpan.FromTicks((long)avgTicks);
+                            var maxTime = timesTaken.Max();
+                            var minTime = timesTaken.Min();
+
+                            output.WriteLine($"avg: {avgTime}");
+                            output.WriteLine($"min: {minTime}");
+                            output.WriteLine($"max: {maxTime}");
+                            bool throwNow = true;
+                            if (throwNow)
+                            {
+                                throw new NotImplementedException("");
+                            }
                             // enable subscription transfer
                             uaClient.ReconnectPeriod = 1000;
                             uaClient.ReconnectPeriodExponentialBackoff = 10000;
@@ -436,7 +482,7 @@ namespace Quickstarts.ConsoleReferenceClient
                                                 quitCTS.Token);
                                         }
 
-                                        if ( waitCounters > closeSessionTime && waitCounters < restartSessionTime )
+                                        if (waitCounters > closeSessionTime && waitCounters < restartSessionTime)
                                         {
                                             Console.WriteLine("No Communication Interval " + stopCount.ToString());
                                             stopCount++;
