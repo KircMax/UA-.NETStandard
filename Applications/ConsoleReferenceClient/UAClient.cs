@@ -63,7 +63,7 @@ namespace Quickstarts.ConsoleReferenceClient
         /// <summary>
         /// Gets or sets the server URL.
         /// </summary>
-        public string ServerUrl { get; set; } = "opc.tcp://localhost:62541/Quickstarts/ReferenceServer";
+        public string ServerUrl { get; set; } = "opc.tcp://192.168.2.3:4840";
         #endregion
 
         #region Public Methods

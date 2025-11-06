@@ -16,6 +16,22 @@
     <PackageId>$(PackageId).Debug</PackageId>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net462|AnyCPU'">
+    <NoWarn>NU5125;RCS1138;RCS1139;CA1854;CA1852;CA1859</NoWarn>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netstandard2.0|AnyCPU'">
+    <NoWarn>NU5125;RCS1138;RCS1139;CA1854;CA1852;CA1859</NoWarn>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net462|AnyCPU'">
+    <NoWarn>NU5125;RCS1138;RCS1139;CA1854;CA1852;CA1859</NoWarn>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netstandard2.0|AnyCPU'">
+    <NoWarn>NU5125;RCS1138;RCS1139;CA1854;CA1852;CA1859</NoWarn>
+  </PropertyGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\..\Stack\Opc.Ua.Core\Opc.Ua.Core.csproj" />
     <ProjectReference Include="..\Opc.Ua.Configuration\Opc.Ua.Configuration.csproj" />

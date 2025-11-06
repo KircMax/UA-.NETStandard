@@ -21,6 +21,22 @@
     <DefineConstants>$(DefineConstants);SIGNASSEMBLY</DefineConstants>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net462|AnyCPU'">
+    <NoWarn>NU5125;RCS1138;RCS1139;CA1859;CA1861;CA1840;CA1862;CA1854</NoWarn>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netstandard2.0|AnyCPU'">
+    <NoWarn>NU5125;RCS1138;RCS1139;CA1859;CA1861;CA1840;CA1862;CA1854</NoWarn>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net462|AnyCPU'">
+    <NoWarn>NU5125;RCS1138;RCS1139;CA1859;CA1861;CA1840;CA1862;CA1854</NoWarn>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netstandard2.0|AnyCPU'">
+    <NoWarn>NU5125;RCS1138;RCS1139;CA1859;CA1861;CA1840;CA1862;CA1854</NoWarn>
+  </PropertyGroup>
+
   <ItemGroup>
     <None Remove="Schema\Opc.Ua.NodeSet2.xml" />
     <None Remove="Schema\Opc.Ua.Types.bsd" />
@@ -63,6 +79,12 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\Libraries\Opc.Ua.Security.Certificates\Opc.Ua.Security.Certificates.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="Microsoft.Extensions.Logging.Abstractions">
+      <HintPath>..\..\..\..\ArtifactoryDownloaderCache\microsoft.extensions.logging.abstractions\2.2.0\lib\netstandard2.0\Microsoft.Extensions.Logging.Abstractions.dll</HintPath>
+    </Reference>
   </ItemGroup>
   
   <Target Name="GetPackagingOutputs" />
