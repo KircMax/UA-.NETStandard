@@ -5,6 +5,7 @@
     <RootNamespace>Opc.Ua.Core.Tests</RootNamespace>
     <GenerateProgramFile>false</GenerateProgramFile>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Platforms>AnyCPU;x64</Platforms>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.IO.RecyclableMemoryStream" />

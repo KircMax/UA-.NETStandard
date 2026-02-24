@@ -112,14 +112,14 @@
     </When>
     <Otherwise>
       <PropertyGroup>
-        <AppTargetFrameworks>net10.0;net9.0;net8.0;net48</AppTargetFrameworks>
-        <AppTargetFramework>net10.0</AppTargetFramework>
-        <TestsTargetFrameworks>net472;net48;net8.0;net9.0;net10.0</TestsTargetFrameworks>
-        <LibTargetFrameworks>net472;net48;netstandard2.1;net8.0;net9.0;net10.0</LibTargetFrameworks>
-        <LibCoreTargetFrameworks>net472;net48;netstandard2.1;net8.0;net9.0;net10.0</LibCoreTargetFrameworks>
-        <LibTypesTargetFrameworks>net472;net48;netstandard2.0;netstandard2.1;net8.0;net9.0;net10.0</LibTypesTargetFrameworks>
-        <LibxTargetFrameworks>net472;net48;netstandard2.1;net8.0;net9.0;net10.0</LibxTargetFrameworks>
-        <HttpsTargetFrameworks>net472;net48;netstandard2.1;net8.0;net9.0;net10.0</HttpsTargetFrameworks>
+        <AppTargetFrameworks>net48</AppTargetFrameworks>
+        <AppTargetFramework>net48</AppTargetFramework>
+        <TestsTargetFrameworks>net48</TestsTargetFrameworks>
+        <LibTargetFrameworks>net48</LibTargetFrameworks>
+        <LibCoreTargetFrameworks>net48</LibCoreTargetFrameworks>
+        <LibTypesTargetFrameworks>net48</LibTypesTargetFrameworks>
+        <LibxTargetFrameworks>net48</LibxTargetFrameworks>
+        <HttpsTargetFrameworks>net48</HttpsTargetFrameworks>
       </PropertyGroup>
     </Otherwise>
   </Choose>

@@ -4,6 +4,7 @@
     <TargetFrameworks>$(TestsTargetFrameworks)</TargetFrameworks>
     <RootNamespace>Opc.Ua.PubSub.Tests</RootNamespace>
     <GenerateProgramFile>false</GenerateProgramFile>
+    <Platforms>AnyCPU;x64</Platforms>
   </PropertyGroup>
   <PropertyGroup Condition="'$(NetStandardTests)' == 'true'">
     <DefineConstants>$(DefineConstants);NET_STANDARD_TESTS</DefineConstants>

@@ -8,6 +8,7 @@
     <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
     <IsPackable>true</IsPackable>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <Platforms>AnyCPU;x64</Platforms>
   </PropertyGroup>
   <ItemGroup>
     <InternalsVisibleTo Include="Opc.Ua.Server.Tests" />

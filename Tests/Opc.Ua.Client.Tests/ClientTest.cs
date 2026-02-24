@@ -188,6 +188,94 @@ namespace Opc.Ua.Client.Tests
 
         [Test]
         [Order(100)]
+        public async Task WriteValueToNodeIDAsync()
+        {
+            TestContext.Out.WriteLine("Write Value to NodeId");
+            ITelemetryContext telemetry = NUnitTelemetryContext.Create();
+            var endpointConfiguration = EndpointConfiguration.Create();
+            endpointConfiguration.OperationTimeout = 10000;
+            using DiscoveryClient client = await DiscoveryClient.CreateAsync(
+                ServerUrl,
+                endpointConfiguration,
+                telemetry).ConfigureAwait(false);
+            Endpoints = await client.GetEndpointsAsync(null, CancellationToken.None)
+                .ConfigureAwait(false);
+
+            ISession session = await ClientFixture
+                .ConnectAsync(ServerUrl, SecurityPolicies.None, Endpoints)
+                .ConfigureAwait(false);
+            session.WriteAsync(
+                null,
+                new WriteValueCollection
+                {
+                    new WriteValue
+                    {
+                        NodeId = new NodeId("\"15. Higher amount of data dimens and length of ArrayBou\".\"Struct\".\"MyBool\"", 3),
+                        AttributeId = Attributes.Value,
+                        Value = new DataValue(new Variant(true))
+                    }
+                },
+                CancellationToken.None).Wait();
+            var byteArray = CreateRandomByteArray(11, 16, 16);
+            //var generated_array = new Variant();
+            var generated_array2 = new Matrix(byteArray, BuiltInType.Byte);
+            var matrixToWrite = new Variant(generated_array2);
+
+
+            session.WriteAsync(
+                null,
+                new WriteValueCollection
+                {
+                    new WriteValue
+                    {
+                        NodeId = new NodeId("\"15. Higher amount of data dimens and length of ArrayBou\".\"Struct\".\"MyDynAray\"", 3),
+                        AttributeId = Attributes.Value,
+                        Value = new DataValue(matrixToWrite)
+                    }
+                },
+                CancellationToken.None).Wait();
+
+            var generated_array = new Variant(byteArray);
+
+            session.WriteAsync(
+                null,
+                new WriteValueCollection
+                {
+                    new WriteValue
+                    {
+                        NodeId = new NodeId("\"15. Higher amount of data dimens and length of ArrayBou\".\"Struct\".\"MyDynAray\"", 3),
+                        AttributeId = Attributes.Value,
+                        Value = new DataValue(generated_array)
+                    }
+                },
+                CancellationToken.None).Wait();
+
+
+            //close async
+            session.CloseAsync(CancellationToken.None).Wait();
+
+        }
+        private static byte[,,] CreateRandomByteArray(int dim1, int dim2, int dim3)
+        {
+            Random random = new Random();
+            byte[,,] array = new byte[dim1, dim2, dim3];
+
+            for (int i = 0; i < dim1; i++)
+            {
+                for (int j = 0; j < dim2; j++)
+                {
+                    for (int k = 0; k < dim3; k++)
+                    {
+                        array[i, j, k] = (byte)random.Next(100);
+                    }
+                }
+            }
+
+            return array;
+        }
+
+        [Test]
+        [Order(100)]
         public async Task FindServersAsync()
         {
             ITelemetryContext telemetry = NUnitTelemetryContext.Create();
