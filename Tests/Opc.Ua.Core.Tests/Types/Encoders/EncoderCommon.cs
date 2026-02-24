@@ -322,6 +322,7 @@ namespace Opc.Ua.Core.Tests.Types.Encoders
                 {
                     TestContext.Out.WriteLine(result);
                 }
+                throw;
             }
         }
 

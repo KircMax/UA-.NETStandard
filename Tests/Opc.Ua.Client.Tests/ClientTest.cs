@@ -215,7 +215,7 @@ namespace Opc.Ua.Client.Tests
                         Value = new DataValue(new Variant(true))
                     }
                 },
-                CancellationToken.None).Wait();
+                CancellationToken.None).GetAwaiter().GetResult();
             var byteArray = CreateRandomByteArray(11, 16, 16);
             //var generated_array = new Variant();
             var generated_array2 = new Matrix(byteArray, BuiltInType.Byte);
@@ -233,7 +233,7 @@ namespace Opc.Ua.Client.Tests
                         Value = new DataValue(matrixToWrite)
                     }
                 },
-                CancellationToken.None).Wait();
+                CancellationToken.None).GetAwaiter().GetResult();
 
             var generated_array = new Variant(byteArray);
 
@@ -248,7 +248,7 @@ namespace Opc.Ua.Client.Tests
                         Value = new DataValue(generated_array)
                     }
                 },
-                CancellationToken.None).Wait();
+                CancellationToken.None).GetAwaiter().GetResult();
 
 
             //close async
