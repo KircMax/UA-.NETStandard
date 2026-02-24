@@ -88,7 +88,7 @@ namespace Quickstarts.ReferenceServer
         {
             if (node is BaseInstanceState instance &&
                 instance.Parent != null &&
-                instance.Parent.NodeId.Identifier is string id)
+                instance.Parent.NodeId.TryGetIdentifier(out string id))
             {
                 return new NodeId(
                     id + "_" + instance.SymbolicName,
@@ -396,11 +396,11 @@ namespace Quickstarts.ReferenceServer
                     var largeInteger = BigInteger.Parse(
                         "1234567890123546789012345678901234567890123456789012345",
                         CultureInfo.InvariantCulture);
-                    decimalVariable.Value = new DecimalDataType
+                    decimalVariable.Value = Variant.FromStructure(new DecimalDataType
                     {
                         Scale = 100,
                         Value = largeInteger.ToByteArray()
-                    };
+                    });
                     variables.Add(decimalVariable);
 
                     ResetRandomGenerator(2);
@@ -446,7 +446,7 @@ namespace Quickstarts.ReferenceServer
                         DataTypeIds.Double,
                         ValueRanks.OneDimension);
                     // Set the first elements of the array to a smaller value.
-                    double[] doubleArrayVal = doubleArrayVar.Value as double[];
+                    double[] doubleArrayVal = (double[])doubleArrayVar.Value;
                     doubleArrayVal[0] %= 10E+10;
                     doubleArrayVal[1] %= 10E+10;
                     doubleArrayVal[2] %= 10E+10;
@@ -468,7 +468,7 @@ namespace Quickstarts.ReferenceServer
                         DataTypeIds.Float,
                         ValueRanks.OneDimension);
                     // Set the first elements of the array to a smaller value.
-                    float[] floatArrayVal = floatArrayVar.Value as float[];
+                    float[] floatArrayVal = (float[])floatArrayVar.Value;
                     floatArrayVal[0] %= 0xf10E + 4;
                     floatArrayVal[1] %= 0xf10E + 4;
                     floatArrayVal[2] %= 0xf10E + 4;
@@ -2373,8 +2373,8 @@ namespace Quickstarts.ReferenceServer
                         "AnonymousAccess",
                         BuiltInType.Int16,
                         ValueRanks.Scalar);
-                    rpAnonymous.Description
-                        = "This node can be accessed by users that have Anonymous Role";
+                    rpAnonymous.Description = LocalizedText.From(
+                        "This node can be accessed by users that have Anonymous Role");
                     rpAnonymous.RolePermissions =
                     [
                         // allow access to users with Anonymous role
@@ -2397,7 +2397,7 @@ namespace Quickstarts.ReferenceServer
                         BuiltInType.Int16,
                         ValueRanks.Scalar);
                     rpAuthenticatedUser.Description =
-                        "This node can be accessed by users that have AuthenticatedUser Role";
+                        LocalizedText.From("This node can be accessed by users that have AuthenticatedUser Role");
                     rpAuthenticatedUser.RolePermissions =
                     [
                         // allow access to users with AuthenticatedUser role
@@ -2419,8 +2419,8 @@ namespace Quickstarts.ReferenceServer
                         "SecurityAdmin",
                         BuiltInType.Int16,
                         ValueRanks.Scalar);
-                    rpSecurityAdminUser.Description =
-                        "This node can be accessed by users that have SecurityAdmin Role over an encrypted connection";
+                    rpSecurityAdminUser.Description = LocalizedText.From(
+                        "This node can be accessed by users that have SecurityAdmin Role over an encrypted connection");
                     rpSecurityAdminUser.AccessRestrictions
                         = AccessRestrictionType.EncryptionRequired;
                     rpSecurityAdminUser.RolePermissions =
@@ -2444,8 +2444,8 @@ namespace Quickstarts.ReferenceServer
                         "ConfigureAdmin",
                         BuiltInType.Int16,
                         ValueRanks.Scalar);
-                    rpConfigAdminUser.Description =
-                        "This node can be accessed by users that have ConfigureAdmin Role over an encrypted connection";
+                    rpConfigAdminUser.Description = LocalizedText.From(
+                        "This node can be accessed by users that have ConfigureAdmin Role over an encrypted connection");
                     rpConfigAdminUser.AccessRestrictions = AccessRestrictionType.EncryptionRequired;
                     rpConfigAdminUser.RolePermissions =
                     [
@@ -2587,9 +2587,9 @@ namespace Quickstarts.ReferenceServer
                     addMethod.InputArguments = new PropertyState<Argument[]>(addMethod)
                     {
                         NodeId = new NodeId(addMethod.BrowseName.Name + "InArgs", NamespaceIndex),
-                        BrowseName = BrowseNames.InputArguments
+                        BrowseName = QualifiedName.From(BrowseNames.InputArguments)
                     };
-                    addMethod.InputArguments.DisplayName = addMethod.InputArguments.BrowseName.Name;
+                    addMethod.InputArguments.DisplayName = LocalizedText.From(addMethod.InputArguments.BrowseName.Name);
                     addMethod.InputArguments.TypeDefinitionId = VariableTypeIds.PropertyType;
                     addMethod.InputArguments.ReferenceTypeId = ReferenceTypeIds.HasProperty;
                     addMethod.InputArguments.DataType = DataTypeIds.Argument;
@@ -2600,14 +2600,14 @@ namespace Quickstarts.ReferenceServer
                         new Argument
                         {
                             Name = "Float value",
-                            Description = "Float value",
+                            Description = LocalizedText.From("Float value"),
                             DataType = DataTypeIds.Float,
                             ValueRank = ValueRanks.Scalar
                         },
                         new Argument
                         {
                             Name = "UInt32 value",
-                            Description = "UInt32 value",
+                            Description = LocalizedText.From("UInt32 value"),
                             DataType = DataTypeIds.UInt32,
                             ValueRank = ValueRanks.Scalar
                         }
@@ -2617,10 +2617,9 @@ namespace Quickstarts.ReferenceServer
                     addMethod.OutputArguments = new PropertyState<Argument[]>(addMethod)
                     {
                         NodeId = new NodeId(addMethod.BrowseName.Name + "OutArgs", NamespaceIndex),
-                        BrowseName = BrowseNames.OutputArguments
+                        BrowseName = QualifiedName.From(BrowseNames.OutputArguments)
                     };
-                    addMethod.OutputArguments.DisplayName = addMethod.OutputArguments.BrowseName
-                        .Name;
+                    addMethod.OutputArguments.DisplayName = LocalizedText.From(addMethod.OutputArguments.BrowseName.Name);
                     addMethod.OutputArguments.TypeDefinitionId = VariableTypeIds.PropertyType;
                     addMethod.OutputArguments.ReferenceTypeId = ReferenceTypeIds.HasProperty;
                     addMethod.OutputArguments.DataType = DataTypeIds.Argument;
@@ -2631,7 +2630,7 @@ namespace Quickstarts.ReferenceServer
                         new Argument
                         {
                             Name = "Add Result",
-                            Description = "Add Result",
+                            Description = LocalizedText.From("Add Result"),
                             DataType = DataTypeIds.Float,
                             ValueRank = ValueRanks.Scalar
                         }
@@ -2649,11 +2648,10 @@ namespace Quickstarts.ReferenceServer
                         NodeId = new NodeId(
                             multiplyMethod.BrowseName.Name + "InArgs",
                             NamespaceIndex),
-                        BrowseName = BrowseNames.InputArguments
+                        BrowseName = QualifiedName.From(BrowseNames.InputArguments)
                     };
-                    multiplyMethod.InputArguments.DisplayName = multiplyMethod.InputArguments
-                        .BrowseName
-                        .Name;
+                    multiplyMethod.InputArguments.DisplayName = LocalizedText.From(
+                        multiplyMethod.InputArguments.BrowseName.Name);
                     multiplyMethod.InputArguments.TypeDefinitionId = VariableTypeIds.PropertyType;
                     multiplyMethod.InputArguments.ReferenceTypeId = ReferenceTypeIds.HasProperty;
                     multiplyMethod.InputArguments.DataType = DataTypeIds.Argument;
@@ -2664,14 +2662,14 @@ namespace Quickstarts.ReferenceServer
                         new Argument
                         {
                             Name = "Int16 value",
-                            Description = "Int16 value",
+                            Description = LocalizedText.From("Int16 value"),
                             DataType = DataTypeIds.Int16,
                             ValueRank = ValueRanks.Scalar
                         },
                         new Argument
                         {
                             Name = "UInt16 value",
-                            Description = "UInt16 value",
+                            Description = LocalizedText.From("UInt16 value"),
                             DataType = DataTypeIds.UInt16,
                             ValueRank = ValueRanks.Scalar
                         }
@@ -2683,11 +2681,10 @@ namespace Quickstarts.ReferenceServer
                         NodeId = new NodeId(
                             multiplyMethod.BrowseName.Name + "OutArgs",
                             NamespaceIndex),
-                        BrowseName = BrowseNames.OutputArguments
+                        BrowseName = QualifiedName.From(BrowseNames.OutputArguments)
                     };
-                    multiplyMethod.OutputArguments.DisplayName = multiplyMethod.OutputArguments
-                        .BrowseName
-                        .Name;
+                    multiplyMethod.OutputArguments.DisplayName = LocalizedText.From(
+                        multiplyMethod.OutputArguments.BrowseName.Name);
                     multiplyMethod.OutputArguments.TypeDefinitionId = VariableTypeIds.PropertyType;
                     multiplyMethod.OutputArguments.ReferenceTypeId = ReferenceTypeIds.HasProperty;
                     multiplyMethod.OutputArguments.DataType = DataTypeIds.Argument;
@@ -2698,7 +2695,7 @@ namespace Quickstarts.ReferenceServer
                         new Argument
                         {
                             Name = "Multiply Result",
-                            Description = "Multiply Result",
+                            Description = LocalizedText.From("Multiply Result"),
                             DataType = DataTypeIds.Int32,
                             ValueRank = ValueRanks.Scalar
                         }
@@ -2717,10 +2714,10 @@ namespace Quickstarts.ReferenceServer
                         NodeId = new NodeId(
                             divideMethod.BrowseName.Name + "InArgs",
                             NamespaceIndex),
-                        BrowseName = BrowseNames.InputArguments
+                        BrowseName = QualifiedName.From(BrowseNames.InputArguments)
                     };
-                    divideMethod.InputArguments.DisplayName = divideMethod.InputArguments.BrowseName
-                        .Name;
+                    divideMethod.InputArguments.DisplayName = LocalizedText.From(
+                        divideMethod.InputArguments.BrowseName.Name);
                     divideMethod.InputArguments.TypeDefinitionId = VariableTypeIds.PropertyType;
                     divideMethod.InputArguments.ReferenceTypeId = ReferenceTypeIds.HasProperty;
                     divideMethod.InputArguments.DataType = DataTypeIds.Argument;
@@ -2731,14 +2728,14 @@ namespace Quickstarts.ReferenceServer
                         new Argument
                         {
                             Name = "Int32 value",
-                            Description = "Int32 value",
+                            Description = LocalizedText.From("Int32 value"),
                             DataType = DataTypeIds.Int32,
                             ValueRank = ValueRanks.Scalar
                         },
                         new Argument
                         {
                             Name = "UInt16 value",
-                            Description = "UInt16 value",
+                            Description = LocalizedText.From("UInt16 value"),
                             DataType = DataTypeIds.UInt16,
                             ValueRank = ValueRanks.Scalar
                         }
@@ -2750,11 +2747,10 @@ namespace Quickstarts.ReferenceServer
                         NodeId = new NodeId(
                             divideMethod.BrowseName.Name + "OutArgs",
                             NamespaceIndex),
-                        BrowseName = BrowseNames.OutputArguments
+                        BrowseName = QualifiedName.From(BrowseNames.OutputArguments)
                     };
-                    divideMethod.OutputArguments.DisplayName = divideMethod.OutputArguments
-                        .BrowseName
-                        .Name;
+                    divideMethod.OutputArguments.DisplayName = LocalizedText.From(
+                        divideMethod.OutputArguments.BrowseName.Name);
                     divideMethod.OutputArguments.TypeDefinitionId = VariableTypeIds.PropertyType;
                     divideMethod.OutputArguments.ReferenceTypeId = ReferenceTypeIds.HasProperty;
                     divideMethod.OutputArguments.DataType = DataTypeIds.Argument;
@@ -2765,7 +2761,7 @@ namespace Quickstarts.ReferenceServer
                         new Argument
                         {
                             Name = "Divide Result",
-                            Description = "Divide Result",
+                            Description = LocalizedText.From("Divide Result"),
                             DataType = DataTypeIds.Float,
                             ValueRank = ValueRanks.Scalar
                         }
@@ -2783,11 +2779,10 @@ namespace Quickstarts.ReferenceServer
                         NodeId = new NodeId(
                             substractMethod.BrowseName.Name + "InArgs",
                             NamespaceIndex),
-                        BrowseName = BrowseNames.InputArguments
+                        BrowseName = QualifiedName.From(BrowseNames.InputArguments)
                     };
-                    substractMethod.InputArguments.DisplayName = substractMethod.InputArguments
-                        .BrowseName
-                        .Name;
+                    substractMethod.InputArguments.DisplayName = LocalizedText.From(
+                        substractMethod.InputArguments.BrowseName.Name);
                     substractMethod.InputArguments.TypeDefinitionId = VariableTypeIds.PropertyType;
                     substractMethod.InputArguments.ReferenceTypeId = ReferenceTypeIds.HasProperty;
                     substractMethod.InputArguments.DataType = DataTypeIds.Argument;
@@ -2798,14 +2793,14 @@ namespace Quickstarts.ReferenceServer
                         new Argument
                         {
                             Name = "Int16 value",
-                            Description = "Int16 value",
+                            Description = LocalizedText.From("Int16 value"),
                             DataType = DataTypeIds.Int16,
                             ValueRank = ValueRanks.Scalar
                         },
                         new Argument
                         {
                             Name = "Byte value",
-                            Description = "Byte value",
+                            Description = LocalizedText.From("Byte value"),
                             DataType = DataTypeIds.Byte,
                             ValueRank = ValueRanks.Scalar
                         }
@@ -2817,11 +2812,10 @@ namespace Quickstarts.ReferenceServer
                         NodeId = new NodeId(
                             substractMethod.BrowseName.Name + "OutArgs",
                             NamespaceIndex),
-                        BrowseName = BrowseNames.OutputArguments
+                        BrowseName = QualifiedName.From(BrowseNames.OutputArguments)
                     };
-                    substractMethod.OutputArguments.DisplayName = substractMethod.OutputArguments
-                        .BrowseName
-                        .Name;
+                    substractMethod.OutputArguments.DisplayName = LocalizedText.From(
+                        substractMethod.OutputArguments.BrowseName.Name);
                     substractMethod.OutputArguments.TypeDefinitionId = VariableTypeIds.PropertyType;
                     substractMethod.OutputArguments.ReferenceTypeId = ReferenceTypeIds.HasProperty;
                     substractMethod.OutputArguments.DataType = DataTypeIds.Argument;
@@ -2832,7 +2826,7 @@ namespace Quickstarts.ReferenceServer
                         new Argument
                         {
                             Name = "Substract Result",
-                            Description = "Substract Result",
+                            Description = LocalizedText.From("Substract Result"),
                             DataType = DataTypeIds.Int16,
                             ValueRank = ValueRanks.Scalar
                         }
@@ -2849,10 +2843,10 @@ namespace Quickstarts.ReferenceServer
                     helloMethod.InputArguments = new PropertyState<Argument[]>(helloMethod)
                     {
                         NodeId = new NodeId(helloMethod.BrowseName.Name + "InArgs", NamespaceIndex),
-                        BrowseName = BrowseNames.InputArguments
+                        BrowseName = QualifiedName.From(BrowseNames.InputArguments)
                     };
-                    helloMethod.InputArguments.DisplayName = helloMethod.InputArguments.BrowseName
-                        .Name;
+                    helloMethod.InputArguments.DisplayName = LocalizedText.From(
+                        helloMethod.InputArguments.BrowseName.Name);
                     helloMethod.InputArguments.TypeDefinitionId = VariableTypeIds.PropertyType;
                     helloMethod.InputArguments.ReferenceTypeId = ReferenceTypeIds.HasProperty;
                     helloMethod.InputArguments.DataType = DataTypeIds.Argument;
@@ -2863,7 +2857,7 @@ namespace Quickstarts.ReferenceServer
                         new Argument
                         {
                             Name = "String value",
-                            Description = "String value",
+                            Description = LocalizedText.From("String value"),
                             DataType = DataTypeIds.String,
                             ValueRank = ValueRanks.Scalar
                         }
@@ -2875,10 +2869,10 @@ namespace Quickstarts.ReferenceServer
                         NodeId = new NodeId(
                             helloMethod.BrowseName.Name + "OutArgs",
                             NamespaceIndex),
-                        BrowseName = BrowseNames.OutputArguments
+                        BrowseName = QualifiedName.From(BrowseNames.OutputArguments)
                     };
-                    helloMethod.OutputArguments.DisplayName = helloMethod.OutputArguments.BrowseName
-                        .Name;
+                    helloMethod.OutputArguments.DisplayName = LocalizedText.From(
+                        helloMethod.OutputArguments.BrowseName.Name);
                     helloMethod.OutputArguments.TypeDefinitionId = VariableTypeIds.PropertyType;
                     helloMethod.OutputArguments.ReferenceTypeId = ReferenceTypeIds.HasProperty;
                     helloMethod.OutputArguments.DataType = DataTypeIds.Argument;
@@ -2889,7 +2883,7 @@ namespace Quickstarts.ReferenceServer
                         new Argument
                         {
                             Name = "Hello Result",
-                            Description = "Hello Result",
+                            Description = LocalizedText.From("Hello Result"),
                             DataType = DataTypeIds.String,
                             ValueRank = ValueRanks.Scalar
                         }
@@ -2905,10 +2899,10 @@ namespace Quickstarts.ReferenceServer
                     inputMethod.InputArguments = new PropertyState<Argument[]>(inputMethod)
                     {
                         NodeId = new NodeId(inputMethod.BrowseName.Name + "InArgs", NamespaceIndex),
-                        BrowseName = BrowseNames.InputArguments
+                        BrowseName = QualifiedName.From(BrowseNames.InputArguments)
                     };
-                    inputMethod.InputArguments.DisplayName = inputMethod.InputArguments.BrowseName
-                        .Name;
+                    inputMethod.InputArguments.DisplayName = LocalizedText.From(
+                        inputMethod.InputArguments.BrowseName.Name);
                     inputMethod.InputArguments.TypeDefinitionId = VariableTypeIds.PropertyType;
                     inputMethod.InputArguments.ReferenceTypeId = ReferenceTypeIds.HasProperty;
                     inputMethod.InputArguments.DataType = DataTypeIds.Argument;
@@ -2919,7 +2913,7 @@ namespace Quickstarts.ReferenceServer
                         new Argument
                         {
                             Name = "String value",
-                            Description = "String value",
+                            Description = LocalizedText.From("String value"),
                             DataType = DataTypeIds.String,
                             ValueRank = ValueRanks.Scalar
                         }
@@ -2938,11 +2932,10 @@ namespace Quickstarts.ReferenceServer
                         NodeId = new NodeId(
                             helloMethod.BrowseName.Name + "OutArgs",
                             NamespaceIndex),
-                        BrowseName = BrowseNames.OutputArguments
+                        BrowseName = QualifiedName.From(BrowseNames.OutputArguments)
                     };
-                    outputMethod.OutputArguments.DisplayName = helloMethod.OutputArguments
-                        .BrowseName
-                        .Name;
+                    outputMethod.OutputArguments.DisplayName = LocalizedText.From(
+                        outputMethod.OutputArguments.BrowseName.Name);
                     outputMethod.OutputArguments.TypeDefinitionId = VariableTypeIds.PropertyType;
                     outputMethod.OutputArguments.ReferenceTypeId = ReferenceTypeIds.HasProperty;
                     outputMethod.OutputArguments.DataType = DataTypeIds.Argument;
@@ -2953,7 +2946,7 @@ namespace Quickstarts.ReferenceServer
                         new Argument
                         {
                             Name = "Output Result",
-                            Description = "Output Result",
+                            Description = LocalizedText.From("Output Result"),
                             DataType = DataTypeIds.String,
                             ValueRank = ValueRanks.Scalar
                         }
@@ -3734,7 +3727,7 @@ namespace Quickstarts.ReferenceServer
         private ServiceResult OnWriteInterval(
             ISystemContext context,
             NodeState node,
-            ref object value)
+            ref Variant value)
         {
             try
             {
@@ -3757,7 +3750,7 @@ namespace Quickstarts.ReferenceServer
         private ServiceResult OnWriteEnabled(
             ISystemContext context,
             NodeState node,
-            ref object value)
+            ref Variant value)
         {
             try
             {
@@ -3838,7 +3831,7 @@ namespace Quickstarts.ReferenceServer
         /// Creates a new variable.
         /// </summary>
         private DataItemState CreateDataItemVariable(
-            NodeState parent,
+            FolderState parent,
             string path,
             string name,
             BuiltInType dataType,
@@ -3848,7 +3841,7 @@ namespace Quickstarts.ReferenceServer
             variable.ValuePrecision = new PropertyState<double>(variable);
             variable.Definition = new PropertyState<string>(variable);
 
-            variable.Create(SystemContext, default, variable.BrowseName, null, true);
+            variable.Create(SystemContext, default, variable.BrowseName, default, true);
 
             variable.SymbolicName = name;
             variable.ReferenceTypeId = ReferenceTypes.Organizes;
@@ -3862,7 +3855,7 @@ namespace Quickstarts.ReferenceServer
             variable.AccessLevel = AccessLevels.CurrentReadOrWrite;
             variable.UserAccessLevel = AccessLevels.CurrentReadOrWrite;
             variable.Historizing = false;
-            variable.Value = TypeInfo.GetDefaultValue((uint)dataType, valueRank, Server.TypeTree);
+            variable.Value = TypeInfo.GetDefaultVariantValue((uint)dataType, valueRank, Server.TypeTree);
             variable.StatusCode = StatusCodes.Good;
 
             if (valueRank == ValueRanks.OneDimension)
@@ -3896,7 +3889,7 @@ namespace Quickstarts.ReferenceServer
             BuiltInType dataType,
             int valueRank)
         {
-            return CreateAnalogItemVariable(parent, path, name, dataType, valueRank, null);
+            return CreateAnalogItemVariable(parent, path, name, dataType, valueRank, default);
         }
 
         private AnalogItemState CreateAnalogItemVariable(
@@ -3905,7 +3898,7 @@ namespace Quickstarts.ReferenceServer
             string name,
             BuiltInType dataType,
             int valueRank,
-            object initialValues)
+            Variant initialValues)
         {
             return CreateAnalogItemVariable(
                 parent,
@@ -3923,7 +3916,7 @@ namespace Quickstarts.ReferenceServer
             string name,
             BuiltInType dataType,
             int valueRank,
-            object initialValues,
+            Variant initialValues,
             Range customRange)
         {
             return CreateAnalogItemVariable(
@@ -3942,7 +3935,7 @@ namespace Quickstarts.ReferenceServer
             string name,
             NodeId dataType,
             int valueRank,
-            object initialValues,
+            Variant initialValues,
             Range customRange)
         {
             var variable = new AnalogItemState(parent)
@@ -3956,7 +3949,7 @@ namespace Quickstarts.ReferenceServer
                 SystemContext,
                 new NodeId(path, NamespaceIndex),
                 variable.BrowseName,
-                null,
+                default,
                 true);
 
             variable.NodeId = new NodeId(path, NamespaceIndex);
@@ -3996,8 +3989,11 @@ namespace Quickstarts.ReferenceServer
 
             variable.EURange.Value = customRange ?? new Range(100, 0);
 
-            variable.Value = initialValues ??
-                TypeInfo.GetDefaultValue(dataType, valueRank, Server.TypeTree);
+            variable.Value = initialValues;
+            if (variable.Value.IsNull)
+            {
+                variable.Value = TypeInfo.GetDefaultVariantValue(dataType, valueRank, Server.TypeTree);
+            }
 
             variable.StatusCode = StatusCodes.Good;
             // The latest UNECE version (Rev 11, published in 2015) is available here:
@@ -4030,7 +4026,7 @@ namespace Quickstarts.ReferenceServer
         /// Creates a new variable.
         /// </summary>
         private TwoStateDiscreteState CreateTwoStateDiscreteItemVariable(
-            NodeState parent,
+            FolderState parent,
             string path,
             string name,
             string trueState,
@@ -4045,7 +4041,7 @@ namespace Quickstarts.ReferenceServer
                 UserWriteMask = AttributeWriteMask.None
             };
 
-            variable.Create(SystemContext, default, variable.BrowseName, null, true);
+            variable.Create(SystemContext, default, variable.BrowseName, default, true);
 
             variable.SymbolicName = name;
             variable.ReferenceTypeId = ReferenceTypes.Organizes;
@@ -4057,11 +4053,11 @@ namespace Quickstarts.ReferenceServer
             variable.Value = (bool)GetNewValue(variable);
             variable.StatusCode = StatusCodes.Good;
 
-            variable.TrueState.Value = trueState;
+            variable.TrueState.Value = LocalizedText.From(trueState);
             variable.TrueState.AccessLevel = AccessLevels.CurrentReadOrWrite;
             variable.TrueState.UserAccessLevel = AccessLevels.CurrentReadOrWrite;
 
-            variable.FalseState.Value = falseState;
+            variable.FalseState.Value = LocalizedText.From(falseState);
             variable.FalseState.AccessLevel = AccessLevels.CurrentReadOrWrite;
             variable.FalseState.UserAccessLevel = AccessLevels.CurrentReadOrWrite;
 
@@ -4074,7 +4070,7 @@ namespace Quickstarts.ReferenceServer
         /// Creates a new variable.
         /// </summary>
         private MultiStateDiscreteState CreateMultiStateDiscreteItemVariable(
-            NodeState parent,
+            FolderState parent,
             string path,
             string name,
             params string[] values)
@@ -4088,7 +4084,7 @@ namespace Quickstarts.ReferenceServer
                 UserWriteMask = AttributeWriteMask.None
             };
 
-            variable.Create(SystemContext, default, variable.BrowseName, null, true);
+            variable.Create(SystemContext, default, variable.BrowseName, default, true);
 
             variable.SymbolicName = name;
             variable.ReferenceTypeId = ReferenceTypes.Organizes;
@@ -4105,7 +4101,7 @@ namespace Quickstarts.ReferenceServer
 
             for (int ii = 0; ii < strings.Length; ii++)
             {
-                strings[ii] = values[ii];
+                strings[ii] = LocalizedText.From(values[ii]);
             }
 
             variable.EnumStrings.Value = strings;
@@ -4126,7 +4122,7 @@ namespace Quickstarts.ReferenceServer
             string name,
             params string[] enumNames)
         {
-            return CreateMultiStateValueDiscreteItemVariable(parent, path, name, null, enumNames);
+            return CreateMultiStateValueDiscreteItemVariable(parent, path, name, default, enumNames);
         }
 
         /// <summary>
@@ -4148,11 +4144,11 @@ namespace Quickstarts.ReferenceServer
                 UserWriteMask = AttributeWriteMask.None
             };
 
-            variable.Create(SystemContext, default, variable.BrowseName, null, true);
+            variable.Create(SystemContext, default, variable.BrowseName, default, true);
 
             variable.SymbolicName = name;
             variable.ReferenceTypeId = ReferenceTypes.Organizes;
-            variable.DataType = nodeId ?? DataTypeIds.UInt32;
+            variable.DataType = nodeId.IsNull ? DataTypeIds.UInt32 : nodeId;
             variable.ValueRank = ValueRanks.Scalar;
             variable.AccessLevel = AccessLevels.CurrentReadOrWrite;
             variable.UserAccessLevel = AccessLevels.CurrentReadOrWrite;
@@ -4169,7 +4165,7 @@ namespace Quickstarts.ReferenceServer
             var strings = new LocalizedText[enumNames.Length];
             for (int ii = 0; ii < strings.Length; ii++)
             {
-                strings[ii] = enumNames[ii];
+                strings[ii] = LocalizedText.From(enumNames[ii]);
             }
 
             // set the enumerated values
@@ -4198,7 +4194,7 @@ namespace Quickstarts.ReferenceServer
             NodeState node,
             NumericRange indexRange,
             QualifiedName dataEncoding,
-            ref object value,
+            ref Variant value,
             ref StatusCode statusCode,
             ref DateTime timestamp)
         {
@@ -4212,7 +4208,7 @@ namespace Quickstarts.ReferenceServer
                 context.NamespaceUris,
                 context.TypeTable);
 
-            if (typeInfo == null || typeInfo == TypeInfo.Unknown)
+            if (typeInfo.IsUnknown)
             {
                 return StatusCodes.BadTypeMismatch;
             }
@@ -4237,15 +4233,14 @@ namespace Quickstarts.ReferenceServer
             NodeState node,
             NumericRange indexRange,
             QualifiedName dataEncoding,
-            ref object value,
+            ref Variant value,
             ref StatusCode statusCode,
             ref DateTime timestamp)
         {
-            var typeInfo = TypeInfo.Construct(value);
+            TypeInfo typeInfo = value.TypeInfo;
 
             if (node is not MultiStateValueDiscreteState variable ||
-                typeInfo == null ||
-                typeInfo == TypeInfo.Unknown ||
+                typeInfo.IsUnknown ||
                 !TypeInfo.IsNumericType(typeInfo.BuiltInType))
             {
                 return StatusCodes.BadTypeMismatch;
@@ -4282,7 +4277,7 @@ namespace Quickstarts.ReferenceServer
             NodeState node,
             NumericRange indexRange,
             QualifiedName dataEncoding,
-            ref object value,
+            ref Variant value,
             ref StatusCode statusCode,
             ref DateTime timestamp)
         {
@@ -4296,7 +4291,7 @@ namespace Quickstarts.ReferenceServer
                 context.NamespaceUris,
                 context.TypeTable);
 
-            if (typeInfo == null || typeInfo == TypeInfo.Unknown)
+            if (typeInfo.IsUnknown)
             {
                 return StatusCodes.BadTypeMismatch;
             }
@@ -4306,7 +4301,7 @@ namespace Quickstarts.ReferenceServer
             {
                 if (indexRange != NumericRange.Empty)
                 {
-                    object target = variable.Value;
+                    object target = variable.Value.AsBoxedObject(); // TODO: Rewrite ranges
                     ServiceResult result = indexRange.UpdateRange(ref target, value);
 
                     if (ServiceResult.IsBad(result))
@@ -4314,7 +4309,7 @@ namespace Quickstarts.ReferenceServer
                         return result;
                     }
 
-                    value = target;
+                    value = new Variant(target);
                 }
             }
             // check instrument range.
@@ -4343,16 +4338,15 @@ namespace Quickstarts.ReferenceServer
             NodeState node,
             NumericRange indexRange,
             QualifiedName dataEncoding,
-            ref object value,
+            ref Variant value,
             ref StatusCode statusCode,
             ref DateTime timestamp)
         {
-            var typeInfo = TypeInfo.Construct(value);
+            TypeInfo typeInfo = value.TypeInfo;
 
             if (node is not PropertyState<Range> variable ||
-                value is not ExtensionObject extensionObject ||
-                typeInfo == null ||
-                typeInfo == TypeInfo.Unknown)
+                !value.TryGet(out ExtensionObject extensionObject) ||
+                typeInfo.IsUnknown)
             {
                 return StatusCodes.BadTypeMismatch;
             }
@@ -4367,14 +4361,14 @@ namespace Quickstarts.ReferenceServer
                 return StatusCodes.BadIndexRangeInvalid;
             }
 
-            var parentTypeInfo = TypeInfo.Construct(parent.Value);
+            TypeInfo parentTypeInfo = parent.Value.TypeInfo;
             Range parentRange = GetAnalogRange(parentTypeInfo.BuiltInType);
             if (parentRange.High < newRange.High || parentRange.Low > newRange.Low)
             {
                 return StatusCodes.BadOutOfRange;
             }
 
-            value = newRange;
+            value = Variant.FromStructure(newRange);
 
             return ServiceResult.Good;
         }
@@ -4420,7 +4414,7 @@ namespace Quickstarts.ReferenceServer
             };
             variable.Value = GetNewValue(variable);
             variable.StatusCode = StatusCodes.Good;
-            variable.Description = "Default Description";
+            variable.Description = LocalizedText.From("Default Description");
 
             if (valueRank == ValueRanks.OneDimension)
             {
@@ -4574,7 +4568,7 @@ namespace Quickstarts.ReferenceServer
                 NodeId = new NodeId(path, NamespaceIndex),
                 BrowseName = new QualifiedName(name, NamespaceIndex)
             };
-            type.DisplayName = type.BrowseName.Name;
+            type.DisplayName = LocalizedText.From(type.BrowseName.Name);
             type.WriteMask = AttributeWriteMask.None;
             type.UserWriteMask = AttributeWriteMask.None;
             type.ContainsNoLoops = true;
@@ -4602,7 +4596,7 @@ namespace Quickstarts.ReferenceServer
         /// <summary>
         /// Creates a new method.
         /// </summary>
-        private MethodState CreateMethod(NodeState parent, string path, string name)
+        private MethodState CreateMethod(FolderState parent, string path, string name)
         {
             var method = new MethodState(parent)
             {
@@ -4625,8 +4619,8 @@ namespace Quickstarts.ReferenceServer
         private ServiceResult OnVoidCall(
             ISystemContext context,
             MethodState method,
-            IList<object> inputArguments,
-            IList<object> outputArguments)
+            VariantCollection inputArguments,
+            VariantCollection outputArguments)
         {
             return ServiceResult.Good;
         }
@@ -4634,8 +4628,8 @@ namespace Quickstarts.ReferenceServer
         private ServiceResult OnAddCall(
             ISystemContext context,
             MethodState method,
-            IList<object> inputArguments,
-            IList<object> outputArguments)
+            VariantCollection inputArguments,
+            VariantCollection outputArguments)
         {
             // all arguments must be provided.
             if (inputArguments.Count < 2)
@@ -4661,8 +4655,8 @@ namespace Quickstarts.ReferenceServer
         private ServiceResult OnMultiplyCall(
             ISystemContext context,
             MethodState method,
-            IList<object> inputArguments,
-            IList<object> outputArguments)
+            VariantCollection inputArguments,
+            VariantCollection outputArguments)
         {
             // all arguments must be provided.
             if (inputArguments.Count < 2)
@@ -4688,8 +4682,8 @@ namespace Quickstarts.ReferenceServer
         private ServiceResult OnDivideCall(
             ISystemContext context,
             MethodState method,
-            IList<object> inputArguments,
-            IList<object> outputArguments)
+            VariantCollection inputArguments,
+            VariantCollection outputArguments)
         {
             // all arguments must be provided.
             if (inputArguments.Count < 2)
@@ -4715,8 +4709,8 @@ namespace Quickstarts.ReferenceServer
         private ServiceResult OnSubstractCall(
             ISystemContext context,
             MethodState method,
-            IList<object> inputArguments,
-            IList<object> outputArguments)
+            VariantCollection inputArguments,
+            VariantCollection outputArguments)
         {
             // all arguments must be provided.
             if (inputArguments.Count < 2)
@@ -4742,8 +4736,8 @@ namespace Quickstarts.ReferenceServer
         private ServiceResult OnHelloCall(
             ISystemContext context,
             MethodState method,
-            IList<object> inputArguments,
-            IList<object> outputArguments)
+            VariantCollection inputArguments,
+            VariantCollection outputArguments)
         {
             // all arguments must be provided.
             if (inputArguments.Count < 1)
@@ -4768,8 +4762,8 @@ namespace Quickstarts.ReferenceServer
         private ServiceResult OnInputCall(
             ISystemContext context,
             MethodState method,
-            IList<object> inputArguments,
-            IList<object> outputArguments)
+            VariantCollection inputArguments,
+            VariantCollection outputArguments)
         {
             // all arguments must be provided.
             if (inputArguments.Count < 1)
@@ -4783,8 +4777,8 @@ namespace Quickstarts.ReferenceServer
         private ServiceResult OnOutputCall(
             ISystemContext context,
             MethodState method,
-            IList<object> inputArguments,
-            IList<object> outputArguments)
+            VariantCollection inputArguments,
+            VariantCollection outputArguments)
         {
             // all arguments must be provided.
             try
@@ -4808,25 +4802,19 @@ namespace Quickstarts.ReferenceServer
             };
         }
 
-        private object GetNewValue(BaseVariableState variable)
+        private Variant GetNewValue(BaseVariableState variable)
         {
             Debug.Assert(m_generator != null, "Need a random generator!");
 
-            object value = null;
-            for (int retryCount = 0; value == null && retryCount < 10; retryCount++)
+            Variant value = default;
+            for (int retryCount = 0; value.IsNull && retryCount < 10; retryCount++)
             {
                 value = m_generator.GetRandom(
                     variable.DataType,
                     variable.ValueRank,
                     [10],
                     Server.TypeTree);
-                // skip Variant Null
-                if (value is Variant variant && variant.Value == null)
-                {
-                    value = null;
-                }
             }
-
             return value;
         }
 
@@ -4940,9 +4928,6 @@ namespace Quickstarts.ReferenceServer
         private int m_simulationsRunning;
         private readonly List<BaseDataVariableState> m_dynamicNodes = [];
 
-        private static readonly bool[] s_booleanArray
-            = [true, false, true, false, true, false, true, false, true];
-
         private static readonly double[] s_doubleArray =
         [
             9.00001d,
@@ -4960,23 +4945,6 @@ namespace Quickstarts.ReferenceServer
             = [0.1f, 0.2f, 0.3f, 0.4f, 0.5f, 1.1f, 2.2f, 3.3f, 4.4f, 5.5f];
 
         private static readonly int[] s_int32Array = [10, 11, 12, 13, 14, 15, 16, 17, 18, 19];
-
-        private static readonly string[] s_stringArray
-            = ["en", "fr", "de", "en", "fr", "de", "en", "fr", "de", "en"];
-
-        private static readonly string[] s_stringArray0 =
-        [
-            "a00",
-            "b10",
-            "c20",
-            "d30",
-            "e40",
-            "f50",
-            "g60",
-            "h70",
-            "i80",
-            "j90"
-        ];
 
         private static readonly string[] s_stringArray1 = ["open", "closed", "jammed"];
         private static readonly string[] s_stringArray2 = ["red", "green", "blue", "cyan"];

@@ -48,7 +48,7 @@ namespace Opc.Ua.Server
     /// is not part of the SDK because most real implementations of a INodeManager will need to
     /// modify the behavior of the base class.
     /// </remarks>
-    public partial class CustomNodeManager2 : INodeManager2, INodeIdFactory, IDisposable
+    public partial class CustomNodeManager2 : INodeManager3, INodeIdFactory, IDisposable
     {
         /// <summary>
         /// Initializes the node manager.
@@ -169,7 +169,7 @@ namespace Opc.Ua.Server
             }
             else
             {
-                m_monitoredItemManager = new MonitoredNodeMonitoredItemManager(this);
+                m_monitoredItemManager = new MonitoredNodeMonitoredItemManager(this, server);
             }
 
             PredefinedNodes = [];
@@ -327,7 +327,7 @@ namespace Opc.Ua.Server
         protected virtual bool IsNodeIdInNamespace(NodeId nodeId)
         {
             // nulls are never a valid node.
-            if (NodeId.IsNull(nodeId))
+            if (nodeId.IsNull)
             {
                 return false;
             }
@@ -397,7 +397,7 @@ namespace Opc.Ua.Server
 
                 NodeState parent = null;
 
-                if (parentId != null)
+                if (!parentId.IsNull)
                 {
                     if (!PredefinedNodes.TryGetValue(parentId, out parent))
                     {
@@ -410,7 +410,7 @@ namespace Opc.Ua.Server
                     parent.AddChild(instance);
                 }
 
-                instance.Create(contextToUse, default, browseName, null, true);
+                instance.Create(contextToUse, default, browseName, default, true);
                 AddPredefinedNode(contextToUse, instance);
 
                 return instance.NodeId;
@@ -445,22 +445,10 @@ namespace Opc.Ua.Server
         /// <summary>
         /// Searches the node id in all node managers
         /// </summary>
+        [Obsolete("Use IServerInteral.IMasterNodeManager.FindNodeInAddressSpaceAsync instead.")]
         public NodeState FindNodeInAddressSpace(NodeId nodeId)
         {
-            if (nodeId == null)
-            {
-                return null;
-            }
-            // search node id in all node managers
-            foreach (INodeManager nodeManager in Server.NodeManager.NodeManagers)
-            {
-                if (nodeManager.GetManagerHandle(nodeId) is not NodeHandle handle)
-                {
-                    continue;
-                }
-                return handle.Node;
-            }
-            return null;
+            return Server.NodeManager.FindNodeInAddressSpaceAsync(nodeId).AsTask().GetAwaiter().GetResult();
         }
 
         /// <summary>
@@ -569,9 +557,9 @@ namespace Opc.Ua.Server
             // assign a default value to any variable in namespace 0
             if (node is BaseVariableState nodeStateVar &&
                 nodeStateVar.NodeId.NamespaceIndex == 0 &&
-                nodeStateVar.Value == null)
+                nodeStateVar.Value.IsNull)
             {
-                nodeStateVar.Value = TypeInfo.GetDefaultValue(
+                nodeStateVar.Value = TypeInfo.GetDefaultVariantValue(
                     nodeStateVar.DataType,
                     nodeStateVar.ValueRank,
                     Server.TypeTree);
@@ -718,7 +706,7 @@ namespace Opc.Ua.Server
                     IReference reference = references[ii];
 
                     // nothing to do with external nodes.
-                    if (reference.TargetId == null || reference.TargetId.IsAbsolute)
+                    if (reference.TargetId.IsNull || reference.TargetId.IsAbsolute)
                     {
                         continue;
                     }
@@ -811,7 +799,7 @@ namespace Opc.Ua.Server
         /// </summary>
         protected void AddTypesToTypeTree(BaseTypeState type)
         {
-            if (!NodeId.IsNull(type.SuperTypeId) && !Server.TypeTree.IsKnown(type.SuperTypeId))
+            if (!type.SuperTypeId.IsNull && !Server.TypeTree.IsKnown(type.SuperTypeId))
             {
                 AddTypesToTypeTree(type.SuperTypeId);
             }
@@ -851,7 +839,7 @@ namespace Opc.Ua.Server
         [Obsolete("Use FindPredefinedNode<T> instead.")]
         public NodeState FindPredefinedNode(NodeId nodeId, Type expectedType)
         {
-            if (nodeId == null)
+            if (nodeId.IsNull)
             {
                 return null;
             }
@@ -876,7 +864,7 @@ namespace Opc.Ua.Server
         /// <returns>Returns null if not found or not of the correct type.</returns>
         public T FindPredefinedNode<T>(NodeId nodeId) where T : NodeState
         {
-            if (nodeId == null)
+            if (nodeId.IsNull)
             {
                 return null;
             }
@@ -1276,7 +1264,7 @@ namespace Opc.Ua.Server
                         continuationPoint.ReferenceTypeId,
                         continuationPoint.IncludeSubtypes,
                         continuationPoint.BrowseDirection,
-                        null,
+                        default,
                         null,
                         false);
                 }
@@ -1975,19 +1963,7 @@ namespace Opc.Ua.Server
                         nodeToWrite.IndexRange);
 #endif
                     var propertyState = handle.Node as PropertyState;
-                    object previousPropertyValue = null;
-
-                    if (propertyState != null)
-                    {
-                        if (propertyState.Value is ExtensionObject extension)
-                        {
-                            previousPropertyValue = extension.Body;
-                        }
-                        else
-                        {
-                            previousPropertyValue = propertyState.Value;
-                        }
-                    }
+                    Variant previousPropertyValue = propertyState?.Value ?? default;
 
                     DataValue oldValue = null;
 
@@ -2000,7 +1976,7 @@ namespace Opc.Ua.Server
                             systemContext,
                             nodeToWrite.AttributeId,
                             nodeToWrite.ParsedIndexRange,
-                            null,
+                            default,
                             oldValue);
                     }
 
@@ -2015,7 +1991,7 @@ namespace Opc.Ua.Server
                     Server.ReportAuditWriteUpdateEvent(
                         systemContext,
                         nodeToWrite,
-                        oldValue?.Value,
+                        oldValue,
                         errors[ii]?.StatusCode ?? StatusCodes.Good,
                         m_logger);
 
@@ -2026,21 +2002,10 @@ namespace Opc.Ua.Server
 
                     if (propertyState != null)
                     {
-                        object propertyValue;
-
-                        if (nodeToWrite.Value.Value is ExtensionObject extension)
-                        {
-                            propertyValue = extension.Body;
-                        }
-                        else
-                        {
-                            propertyValue = nodeToWrite.Value.Value;
-                        }
-
                         CheckIfSemanticsHaveChanged(
                             systemContext,
                             propertyState,
-                            propertyValue,
+                            nodeToWrite.Value,
                             previousPropertyValue);
                     }
 
@@ -2066,8 +2031,8 @@ namespace Opc.Ua.Server
         private void CheckIfSemanticsHaveChanged(
             ServerSystemContext systemContext,
             PropertyState property,
-            object newPropertyValue,
-            object previousPropertyValue)
+            Variant newPropertyValue,
+            Variant previousPropertyValue)
         {
             // check if the changed property is one that can trigger semantic changes
             string propertyName = property.BrowseName.Name;
@@ -2184,7 +2149,7 @@ namespace Opc.Ua.Server
                             systemContext,
                             Attributes.Value,
                             monitoredItem.IndexRange,
-                            null,
+                            default,
                             value);
 
                         monitoredItem.QueueValue(value, ServiceResult.Good, true);
@@ -4198,15 +4163,14 @@ namespace Opc.Ua.Server
             // need to look up the EU range if a percent filter is requested.
             if (deadbandFilter.DeadbandType == (uint)DeadbandType.Percent)
             {
-                if (handle.Node
-                    .FindChild(context, BrowseNames.EURange) is not PropertyState property)
+                if (handle.Node.FindChild(
+                    context,
+                    QualifiedName.From(BrowseNames.EURange)) is not PropertyState property)
                 {
                     return StatusCodes.BadMonitoredItemFilterUnsupported;
                 }
 
-                range = property.Value as Range;
-
-                if (range == null)
+                if (!property.Value.TryGetStructure(out range))
                 {
                     return StatusCodes.BadMonitoredItemFilterUnsupported;
                 }

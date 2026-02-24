@@ -211,7 +211,7 @@ namespace Opc.Ua.Client
                     };
 
                     // Export Value only if requested
-                    if (options.ExportValues && variableNode?.Value != null)
+                    if (options.ExportValues && variableNode != null && !variableNode.Value.IsNull)
                     {
                         state.Value = variableNode.Value;
                     }
@@ -221,7 +221,7 @@ namespace Opc.Ua.Client
                     {
                         byte userAccessLevel = variableNode.UserAccessLevel;
                         byte accessLevel = variableNode.AccessLevel;
-                        
+
                         if (userAccessLevel != accessLevel)
                         {
                             state.UserAccessLevel = userAccessLevel;
@@ -266,7 +266,7 @@ namespace Opc.Ua.Client
                     }
 
                     // Always export MethodDeclarationId (important type system metadata)
-                    if (node.TypeDefinitionId != null && !NodeId.IsNull(node.TypeDefinitionId))
+                    if (!node.TypeDefinitionId.IsNull)
                     {
                         state.MethodDeclarationId = ExpandedNodeId.ToNodeId(node.TypeDefinitionId, context.NamespaceUris);
                     }
@@ -326,7 +326,7 @@ namespace Opc.Ua.Client
                     };
 
                     // Export Value only if requested
-                    if (options.ExportValues && variableTypeNode?.Value != null)
+                    if (options.ExportValues && variableTypeNode != null && !variableTypeNode.Value.IsNull)
                     {
                         state.Value = variableTypeNode.Value;
                     }

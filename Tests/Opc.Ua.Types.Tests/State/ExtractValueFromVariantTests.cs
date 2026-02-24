@@ -98,7 +98,7 @@ namespace Opc.Ua.Types.Tests.State
                 [
                     new RelativePathElement
                     {
-                        TargetName = new QualifiedName("TestName"),
+                        TargetName = QualifiedName.From("TestName"),
                         IsInverse = false
                     }
                 ]
@@ -138,7 +138,7 @@ namespace Opc.Ua.Types.Tests.State
             var propertyState = new PropertyState<string>(null);
 
             // Set null value
-            ((BaseVariableState)propertyState).Value = null;
+            ((BaseVariableState)propertyState).Value = default;
 
             Assert.IsNull(propertyState.Value);
         }

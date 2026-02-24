@@ -37,6 +37,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Xml;
+using System.Runtime.Serialization;
 
 #if NETFRAMEWORK
 using System.Runtime.InteropServices;
@@ -274,6 +275,68 @@ namespace Opc.Ua
 
                 return builder.ToString();
             }
+        }
+
+        /// <summary>
+        /// Converts a hexadecimal string to a buffer skipping whitespace
+        /// </summary>
+        /// <exception cref="FormatException"></exception>
+        public static byte[] FromHexString(string text)
+        {
+            if (string.IsNullOrEmpty(text))
+            {
+                return [];
+            }
+
+            using var ostrm = new MemoryStream();
+            byte buffer = 0;
+            bool firstByte = false;
+            const string digits = "0123456789ABCDEF";
+
+            for (int ii = 0; ii < text.Length; ii++)
+            {
+                if (!char.IsWhiteSpace(text, ii) && !char.IsLetterOrDigit(text, ii))
+                {
+                    throw new FormatException(
+                        "Invalid character in ByteString. " + text[ii]);
+                }
+
+                if (char.IsWhiteSpace(text, ii))
+                {
+                    continue;
+                }
+
+                int index = digits.IndexOf(
+                    char.ToUpperInvariant(text[ii]),
+                    StringComparison.Ordinal);
+
+                if (index < 0)
+                {
+                    throw new FormatException(
+                        "Invalid character in ByteString." + text[ii]);
+                }
+
+                buffer <<= 4;
+                buffer += (byte)index;
+
+                if (firstByte)
+                {
+                    ostrm.WriteByte(buffer);
+                    firstByte = false;
+                    continue;
+                }
+
+                firstByte = true;
+            }
+
+            if (firstByte)
+            {
+                buffer <<= 4;
+                ostrm.WriteByte(buffer);
+            }
+
+            // you should not access a closed stream, ever.
+            return ostrm.ToArray();
         }
 
         /// <summary>
@@ -1072,15 +1135,43 @@ namespace Opc.Ua
         }
 
         /// <summary>
+        /// Create a data contract serializer for the specified type with OPC UA surrogates.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static DataContractSerializer CreateDataContractSerializer<T>(
+            IServiceMessageContext messageContext = null,
+            IEnumerable<Type> knownTypes = null)
+        {
+            return CreateDataContractSerializer(typeof(T), messageContext, knownTypes);
+        }
+
+        /// <summary>
+        /// Create a data contract serializer for the specified type with OPC UA surrogates.
+        /// </summary>
+        /// <returns></returns>
+        public static DataContractSerializer CreateDataContractSerializer(
+            Type systemType,
+            IServiceMessageContext messageContext = null,
+            IEnumerable<Type> knownTypes = null)
+        {
+            var serializer = new DataContractSerializer(systemType,
+                DataContractSurrogates.KnownTypes.Concat(knownTypes ?? []));
+            serializer.SetSerializationSurrogateProvider(
+                new DataContractSurrogates(messageContext ?? AmbientMessageContext.CurrentContext));
+            return serializer;
+        }
+
+        /// <summary>
         /// Get the opc ua core assembly to load manifest from or encodeable types
         /// </summary>
         /// <returns></returns>
-        public static Assembly GetOpcUaCoreAssembly()
+        public static Assembly GetOpcUaAssembly()
         {
             // Find the core assembly with all generated core types if referenced
             foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies())
             {
-                if (assembly.FullName.StartsWith("Opc.Ua.Core,", StringComparison.Ordinal))
+                if (assembly.GetName().Name.Equals("Opc.Ua", StringComparison.Ordinal))
                 {
                     return assembly;
                 }
