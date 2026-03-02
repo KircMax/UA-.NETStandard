@@ -9,6 +9,7 @@
     <Copyright>Copyright © 2004-2024 OPC Foundation, Inc</Copyright>
     <RootNamespace>Quickstarts</RootNamespace>
     <UserSecretsId>46345736-a30f-4466-b3bb-42548ecfaacc</UserSecretsId>
+    <Platforms>AnyCPU;x64</Platforms>
   </PropertyGroup>
   <ItemGroup>
     <None Remove="Quickstarts.MonoReferenceServer.Config.xml" />

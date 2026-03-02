@@ -1,10 +1,24 @@
 <Solution>
+  <Configurations>
+    <Platform Name="Any CPU" />
+    <Platform Name="x64" />
+  </Configurations>
   <Folder Name="/Applications/">
-    <Project Path="Applications/ConsoleReferenceClient/ConsoleReferenceClient.csproj" />
-    <Project Path="Applications/ConsoleReferencePublisher/ConsoleReferencePublisher.csproj" />
-    <Project Path="Applications/ConsoleReferenceServer/ConsoleReferenceServer.csproj" />
-    <Project Path="Applications/ConsoleReferenceSubscriber/ConsoleReferenceSubscriber.csproj" />
-    <Project Path="Applications/Quickstarts.Servers/Quickstarts.Servers.csproj" />
+    <Project Path="Applications/ConsoleReferenceClient/ConsoleReferenceClient.csproj">
+      <Platform Solution="*|x64" Project="x64" />
+    </Project>
+    <Project Path="Applications/ConsoleReferencePublisher/ConsoleReferencePublisher.csproj">
+      <Platform Solution="*|x64" Project="x64" />
+    </Project>
+    <Project Path="Applications/ConsoleReferenceServer/ConsoleReferenceServer.csproj">
+      <Platform Solution="*|x64" Project="x64" />
+    </Project>
+    <Project Path="Applications/ConsoleReferenceSubscriber/ConsoleReferenceSubscriber.csproj">
+      <Platform Solution="*|x64" Project="x64" />
+    </Project>
+    <Project Path="Applications/Quickstarts.Servers/Quickstarts.Servers.csproj">
+      <Platform Solution="*|x64" Project="x64" />
+    </Project>
   </Folder>
   <Folder Name="/Fuzzing/">
     <File Path="Fuzzing/Fuzzing.md" />
@@ -24,9 +38,15 @@
     <File Path="Fuzzing/dictionaries/xml.dict" />
   </Folder>
   <Folder Name="/Fuzzing/Encoders/">
-    <Project Path="Fuzzing/Encoders/Fuzz.Tests/Opc.Ua.Encoders.Fuzz.Tests.csproj" />
-    <Project Path="Fuzzing/Encoders/Fuzz.Tools/Encoders.Fuzz.Tools.csproj" />
-    <Project Path="Fuzzing/Encoders/Fuzz/Encoders.Fuzz.csproj" />
+    <Project Path="Fuzzing/Encoders/Fuzz.Tests/Opc.Ua.Encoders.Fuzz.Tests.csproj">
+      <Platform Solution="*|x64" Project="x64" />
+    </Project>
+    <Project Path="Fuzzing/Encoders/Fuzz.Tools/Encoders.Fuzz.Tools.csproj">
+      <Platform Solution="*|x64" Project="x64" />
+    </Project>
+    <Project Path="Fuzzing/Encoders/Fuzz/Encoders.Fuzz.csproj">
+      <Platform Solution="*|x64" Project="x64" />
+    </Project>
   </Folder>
   <Folder Name="/Fuzzing/Scripts/">
     <File Path="Fuzzing/scripts/fuzz-afl.ps1" />
@@ -35,15 +55,33 @@
     <File Path="Fuzzing/scripts/readme.txt" />
   </Folder>
   <Folder Name="/Libraries/">
-    <Project Path="Libraries/Opc.Ua.Client.ComplexTypes/Opc.Ua.Client.ComplexTypes.csproj" />
-    <Project Path="Libraries/Opc.Ua.Client/Opc.Ua.Client.csproj" />
-    <Project Path="Libraries/Opc.Ua.Configuration/Opc.Ua.Configuration.csproj" />
-    <Project Path="Libraries/Opc.Ua.Gds.Client.Common/Opc.Ua.Gds.Client.Common.csproj" />
-    <Project Path="Libraries/Opc.Ua.Gds.Common/Opc.Ua.Gds.Common.csproj" />
-    <Project Path="Libraries/Opc.Ua.Gds.Server.Common/Opc.Ua.Gds.Server.Common.csproj" />
-    <Project Path="Libraries/Opc.Ua.PubSub/Opc.Ua.PubSub.csproj" />
-    <Project Path="Libraries/Opc.Ua.Security.Certificates/Opc.Ua.Security.Certificates.csproj" />
-    <Project Path="Libraries/Opc.Ua.Server/Opc.Ua.Server.csproj" />
+    <Project Path="Libraries/Opc.Ua.Client.ComplexTypes/Opc.Ua.Client.ComplexTypes.csproj">
+      <Platform Solution="*|x64" Project="x64" />
+    </Project>
+    <Project Path="Libraries/Opc.Ua.Client/Opc.Ua.Client.csproj">
+      <Platform Solution="*|x64" Project="x64" />
+    </Project>
+    <Project Path="Libraries/Opc.Ua.Configuration/Opc.Ua.Configuration.csproj">
+      <Platform Solution="*|x64" Project="x64" />
+    </Project>
+    <Project Path="Libraries/Opc.Ua.Gds.Client.Common/Opc.Ua.Gds.Client.Common.csproj">
+      <Platform Solution="*|x64" Project="x64" />
+    </Project>
+    <Project Path="Libraries/Opc.Ua.Gds.Common/Opc.Ua.Gds.Common.csproj">
+      <Platform Solution="*|x64" Project="x64" />
+    </Project>
+    <Project Path="Libraries/Opc.Ua.Gds.Server.Common/Opc.Ua.Gds.Server.Common.csproj">
+      <Platform Solution="*|x64" Project="x64" />
+    </Project>
+    <Project Path="Libraries/Opc.Ua.PubSub/Opc.Ua.PubSub.csproj">
+      <Platform Solution="*|x64" Project="x64" />
+    </Project>
+    <Project Path="Libraries/Opc.Ua.Security.Certificates/Opc.Ua.Security.Certificates.csproj">
+      <Platform Solution="*|x64" Project="x64" />
+    </Project>
+    <Project Path="Libraries/Opc.Ua.Server/Opc.Ua.Server.csproj">
+      <Platform Solution="*|x64" Project="x64" />
+    </Project>
   </Folder>
   <Folder Name="/Solution Items/">
     <File Path=".dockerignore" />
@@ -104,28 +142,66 @@
     <File Path="Docs/README.md" />
   </Folder>
   <Folder Name="/SourceGeneration/">
-    <Project Path="Tools/Opc.Ua.SourceGeneration.Core/Opc.Ua.SourceGeneration.Core.csproj" />
-    <Project Path="Tools/Opc.Ua.SourceGeneration.Stack/Opc.Ua.SourceGeneration.Stack.csproj" />
-    <Project Path="Tools/Opc.Ua.SourceGeneration/Opc.Ua.SourceGeneration.csproj" />
+    <Project Path="Tools/Opc.Ua.SourceGeneration.Core/Opc.Ua.SourceGeneration.Core.csproj">
+      <Platform Solution="*|x64" Project="x64" />
+    </Project>
+    <Project Path="Tools/Opc.Ua.SourceGeneration.Stack/Opc.Ua.SourceGeneration.Stack.csproj">
+      <Platform Solution="*|x64" Project="x64" />
+    </Project>
+    <Project Path="Tools/Opc.Ua.SourceGeneration/Opc.Ua.SourceGeneration.csproj">
+      <Platform Solution="*|x64" Project="x64" />
+    </Project>
   </Folder>
   <Folder Name="/Stack/">
-    <Project Path="Stack/Opc.Ua.Bindings.Https/Opc.Ua.Bindings.Https.csproj" />
-    <Project Path="Stack/Opc.Ua.Core/Opc.Ua.Core.csproj" />
-    <Project Path="Stack/Opc.Ua.Types/Opc.Ua.Types.csproj" />
-    <Project Path="Stack/Opc.Ua/Opc.Ua.csproj" />
+    <Project Path="Stack/Opc.Ua.Bindings.Https/Opc.Ua.Bindings.Https.csproj">
+      <Platform Solution="*|x64" Project="x64" />
+    </Project>
+    <Project Path="Stack/Opc.Ua.Core/Opc.Ua.Core.csproj">
+      <Platform Solution="*|x64" Project="x64" />
+    </Project>
+    <Project Path="Stack/Opc.Ua.Types/Opc.Ua.Types.csproj">
+      <Platform Solution="*|x64" Project="x64" />
+    </Project>
+    <Project Path="Stack/Opc.Ua/Opc.Ua.csproj">
+      <Platform Solution="*|x64" Project="x64" />
+    </Project>
   </Folder>
   <Folder Name="/Tests/">
-    <Project Path="Tests/Opc.Ua.Client.ComplexTypes.Tests/Opc.Ua.Client.ComplexTypes.Tests.csproj" />
-    <Project Path="Tests/Opc.Ua.Client.Tests/Opc.Ua.Client.Tests.csproj" />
-    <Project Path="Tests/Opc.Ua.Configuration.Tests/Opc.Ua.Configuration.Tests.csproj" />
-    <Project Path="Tests/Opc.Ua.Core.Tests/Opc.Ua.Core.Tests.csproj" />
-    <Project Path="Tests/Opc.Ua.Gds.Tests/Opc.Ua.Gds.Tests.csproj" />
-    <Project Path="Tests/Opc.Ua.PubSub.Tests/Opc.Ua.PubSub.Tests.csproj" />
-    <Project Path="Tests/Opc.Ua.Security.Certificates.Tests/Opc.Ua.Security.Certificates.Tests.csproj" />
-    <Project Path="Tests/Opc.Ua.Server.Tests/Opc.Ua.Server.Tests.csproj" />
-    <Project Path="Tests/Opc.Ua.SourceGeneration.Core.Tests/Opc.Ua.SourceGeneration.Core.Tests.csproj" />
-    <Project Path="Tests/Opc.Ua.SourceGeneration.Stack.Tests/Opc.Ua.SourceGeneration.Stack.Tests.csproj" />
-    <Project Path="Tests/Opc.Ua.SourceGeneration.Tests/Opc.Ua.SourceGeneration.Tests.csproj" />
-    <Project Path="Tests/Opc.Ua.Types.Tests/Opc.Ua.Types.Tests.csproj" />
+    <Project Path="Tests/Opc.Ua.Client.ComplexTypes.Tests/Opc.Ua.Client.ComplexTypes.Tests.csproj">
+      <Platform Solution="*|x64" Project="x64" />
+    </Project>
+    <Project Path="Tests/Opc.Ua.Client.Tests/Opc.Ua.Client.Tests.csproj">
+      <Platform Solution="*|x64" Project="x64" />
+    </Project>
+    <Project Path="Tests/Opc.Ua.Configuration.Tests/Opc.Ua.Configuration.Tests.csproj">
+      <Platform Solution="*|x64" Project="x64" />
+    </Project>
+    <Project Path="Tests/Opc.Ua.Core.Tests/Opc.Ua.Core.Tests.csproj">
+      <Platform Solution="*|x64" Project="x64" />
+    </Project>
+    <Project Path="Tests/Opc.Ua.Gds.Tests/Opc.Ua.Gds.Tests.csproj">
+      <Platform Solution="*|x64" Project="x64" />
+    </Project>
+    <Project Path="Tests/Opc.Ua.PubSub.Tests/Opc.Ua.PubSub.Tests.csproj">
+      <Platform Solution="*|x64" Project="x64" />
+    </Project>
+    <Project Path="Tests/Opc.Ua.Security.Certificates.Tests/Opc.Ua.Security.Certificates.Tests.csproj">
+      <Platform Solution="*|x64" Project="x64" />
+    </Project>
+    <Project Path="Tests/Opc.Ua.Server.Tests/Opc.Ua.Server.Tests.csproj">
+      <Platform Solution="*|x64" Project="x64" />
+    </Project>
+    <Project Path="Tests/Opc.Ua.SourceGeneration.Core.Tests/Opc.Ua.SourceGeneration.Core.Tests.csproj">
+      <Platform Solution="*|x64" Project="x64" />
+    </Project>
+    <Project Path="Tests/Opc.Ua.SourceGeneration.Stack.Tests/Opc.Ua.SourceGeneration.Stack.Tests.csproj">
+      <Platform Solution="*|x64" Project="x64" />
+    </Project>
+    <Project Path="Tests/Opc.Ua.SourceGeneration.Tests/Opc.Ua.SourceGeneration.Tests.csproj">
+      <Platform Solution="*|x64" Project="x64" />
+    </Project>
+    <Project Path="Tests/Opc.Ua.Types.Tests/Opc.Ua.Types.Tests.csproj">
+      <Platform Solution="*|x64" Project="x64" />
+    </Project>
   </Folder>
 </Solution>

@@ -4,6 +4,7 @@
     <TargetFramework>$(AppTargetFramework)</TargetFramework>
     <AssemblyName>Encoders.Fuzz</AssemblyName>
     <RootNamespace>Encoders.Fuzz</RootNamespace>
+    <Platforms>AnyCPU;x64</Platforms>
   </PropertyGroup>
   <PropertyGroup Condition="'$(LibFuzzer)' == 'true'">
     <DefineConstants>$(DefineConstants);LIBFUZZER</DefineConstants>

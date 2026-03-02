@@ -8,12 +8,10 @@
     <Description>.NET Console Reference Client</Description>
     <Copyright>Copyright © 2004-2024 OPC Foundation, Inc</Copyright>
     <RootNamespace>Quickstarts.ConsoleReferenceClient</RootNamespace>
+    <Platforms>AnyCPU;x64</Platforms>
   </PropertyGroup>
   <ItemGroup>
-    <Compile
-      Include="..\ConsoleReferenceServer\ConsoleUtils.cs"
-      Exclude="bin\**;obj\**;**\*.xproj;packages\**"
-    />
+    <Compile Include="..\ConsoleReferenceServer\ConsoleUtils.cs" Exclude="bin\**;obj\**;**\*.xproj;packages\**" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Logging" />
